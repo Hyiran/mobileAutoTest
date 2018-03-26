@@ -68,11 +68,11 @@ function load() {
 						title : 'SVN服务器登录口令',
 						align : 'center'
 					},
-					{
+/*					{
 						field : 'svnConfFilesLocation',
 						title : 'SVN配置文件临时存放位置',
 						align : 'center'
-					},
+					},*/
 					{
 						field : 'svnRootUserName',
 						title : '超级用户的SVN用户名',
@@ -112,10 +112,10 @@ function add() {
 	// iframe层
 	layer.open({
 		type : 2,
-		title : '增加系统配置信息',
+		title : '添加SVN配置信息',
 		maxmin : true,
 		shadeClose : false, // 点击遮罩关闭层
-		area : [ '900px', '520px' ],
+		area : [ '900px', '460px' ],
 		content : prefix + '/add'
 	});
 }
@@ -123,10 +123,10 @@ function add() {
 function edit(id) {
 	layer.open({
 		type : 2,
-		title : '修改系统配置信息',
+		title : '修改SVN配置信息',
 		maxmin : true,
 		shadeClose : false,
-		area : [ '900px', '520px' ],
+		area : [ '900px', '460px' ],
 		content : prefix + '/edit/' + id // iframe的url
 	});
 }

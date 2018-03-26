@@ -50,9 +50,9 @@ public class SVNUtil {
            repository = SVNRepositoryFactory.create(SVNURL    
                    .parseURIEncoded(svnRoot));    
        } catch (SVNException e) {    
-           logger.error(e.getErrorMessage(), e);    
+           logger.error(e.getErrorMessage(), e);
            return null;    
-       }    
+       }  
    
        // 身份验证    
        ISVNAuthenticationManager authManager = SVNWCUtil
@@ -61,6 +61,10 @@ public class SVNUtil {
        // 创建身份验证管理器    
        repository.setAuthenticationManager(authManager);    
    
+       if(repository != null) {
+			repository.closeSession();
+		}
+       
        DefaultSVNOptions options = SVNWCUtil.createDefaultOptions(true);    
        SVNClientManager clientManager = SVNClientManager.newInstance(options,    
                authManager);

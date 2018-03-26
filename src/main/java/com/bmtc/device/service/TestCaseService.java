@@ -2,12 +2,9 @@ package com.bmtc.device.service;
 
 import java.util.List;
 
-
-
-
+import com.bmtc.device.domain.ExecuteParam;
 import com.bmtc.device.domain.TestCase;
 import com.bmtc.device.domain.TestCaseTable;
-import com.bmtc.task.domain.ExecuteDetail;
 
 /**
  *@author: Jason.ma
@@ -21,28 +18,7 @@ public interface TestCaseService {
 	 * @param executeDetail 测试套运行参数
 	 * @return 测试套运行结果，正常运行：true，运行异常：false
 	 */
-	public boolean runTestSuiteForAndroid(ExecuteDetail executeDetail);
-	
-	/**
-	 * ios 环境下bmtc平台运行测试套
-	 * @param executeDetail 测试套运行参数
-	 * @return 测试套运行结果，正常运行：true，运行异常：false
-	 */
-	public boolean runTestSuiteForIOS(ExecuteDetail executeDetail);
-	
-	/**
-	 * android 环境下atp平台运行测试套
-	 * @param executeDetail
-	 * @return
-	 */
-	public boolean atpRunCaseForAndroid(ExecuteDetail executeDetail);
-
-	/**
-	 * ios 环境下atp平台运行测试套
-	 * @param executeDetail 测试套运行参数
-	 * @return 测试套运行结果，正常运行：true，运行异常：false
-	 */
-	public boolean atpRunCaseForIOS(ExecuteDetail executeDetail);
+	public boolean runTestSuite(ExecuteParam executeParam);
 	
 	/**
 	 * 解析脚本文件夹/文件中所有测试用例名称

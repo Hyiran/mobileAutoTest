@@ -152,13 +152,11 @@ public class SvnServiceImpl implements SvnService {
 		} else {
 			svnRepoId = Long.parseLong(svnRepoIdStr);
 		}
-
-		//根据SVN库id查询SVN用户信息
 		
-		//项目的用户
+		//项目的用户，根据SVN库id查询SVN用户信息，不包括用户名为'*'的用户
 		List<SvnUser> usrList = svnUserDao.getListBySvnRepoId(svnRepoId);
 		
-		// 项目的权限
+		//项目的权限
 		Map<String, List<SvnUserAuthzInfo>> svnAuthMap = this.getSvnUserAuthzInfos(svnRepo.getSvnRepoName());
 
 		this.exportSvnConf(svnRepo, svnConfFilesLocation);

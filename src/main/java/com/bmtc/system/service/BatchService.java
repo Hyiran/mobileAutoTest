@@ -9,7 +9,7 @@ import com.bmtc.system.domain.BatchDO;
 public interface BatchService {
 	
 	//通过批次id获取批次对象
-	BatchDO get(Integer batchId);
+	BatchDO get(Long batchId);
 	
 	//查询批次数据
 	List<BatchDO> list();

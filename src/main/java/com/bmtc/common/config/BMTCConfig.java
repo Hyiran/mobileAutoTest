@@ -20,6 +20,8 @@ public class BMTCConfig {
 	private String password;
 	// 下载到本地的路径wcPath
 	private String localPath;
+	//测试案例上传临时文件路径
+	private String uploadFile;
 
    // svn配置文件(authz, passwd, svnserve.conf)在本地的存放位置
 	private String svnConfFilesLocation;
@@ -33,7 +35,16 @@ public class BMTCConfig {
     
     // 远程连接端口号
     private String port;
-    
+    //wsdl接口的url
+    private String bmtcURL;
+    //wsdl接口Qname参数1
+    private String Qname1;
+    //wsdl接口Qname参数2
+    private String Qname2;
+    //定时更新sys_organization表的cron表达式
+    private String updateOrganization;
+    //定时更新test_batch表的cron表达式
+    private String updateBatch;
 	public String getDeviceInfoAdd() {
 		return deviceInfoAdd;
 	}
@@ -130,16 +141,67 @@ public class BMTCConfig {
 		this.port = port;
 	}
 
+	public String getUploadFile() {
+		return uploadFile;
+	}
+
+	public void setUploadFile(String uploadFile) {
+		this.uploadFile = uploadFile;
+	}
+
+	public String getBmtcURL() {
+		return bmtcURL;
+	}
+
+	public void setBmtcURL(String bmtcURL) {
+		this.bmtcURL = bmtcURL;
+	}
+
+
+	public String getQname1() {
+		return Qname1;
+	}
+
+	public void setQname1(String qname1) {
+		Qname1 = qname1;
+	}
+
+	public String getQname2() {
+		return Qname2;
+	}
+
+	public void setQname2(String qname2) {
+		Qname2 = qname2;
+	}
+
+	public String getUpdateOrganization() {
+		return updateOrganization;
+	}
+
+	public void setUpdateOrganization(String updateOrganization) {
+		this.updateOrganization = updateOrganization;
+	}
+
+	public String getUpdateBatch() {
+		return updateBatch;
+	}
+
+	public void setUpdateBatch(String updateBatch) {
+		this.updateBatch = updateBatch;
+	}
+
 	@Override
 	public String toString() {
 		return "BMTCConfig [uploadPath=" + uploadPath + ", deviceInfoAdd="
 				+ deviceInfoAdd + ", executeAdd=" + executeAdd + ", url=" + url
 				+ ", username=" + username + ", password=" + password
-				+ ", localPath=" + localPath + ", svnConfFilesLocation="
-				+ svnConfFilesLocation + ", svnServerUserName="
-				+ svnServerUserName + ", svnServerPassword="
-				+ svnServerPassword + ", svnRootUserName=" + svnRootUserName
-				+ ", port=" + port + "]";
+				+ ", localPath=" + localPath + ", uploadFile=" + uploadFile
+				+ ", svnConfFilesLocation=" + svnConfFilesLocation
+				+ ", svnServerUserName=" + svnServerUserName
+				+ ", svnServerPassword=" + svnServerPassword
+				+ ", svnRootUserName=" + svnRootUserName + ", port=" + port
+				+ ", bmtcURL=" + bmtcURL + ", Qname1=" + Qname1 + ", Qname2="
+				+ Qname2 + "]";
 	}
 	
 }

@@ -3,6 +3,7 @@ $(document).ready(function() {
 	$("#trigger").hide();
 	$("#part1").show();
 	$("#part2").hide();
+	$("#caseNumDiv").hide();
 	var testSuiteCaseNames = '';
 	validateRule();
 });
@@ -28,12 +29,13 @@ function save() {
 				parent.reLoad();
 				var index = parent.layer.getFrameIndex(window.name); // 获取窗口索引
 				parent.layer.close(index);
+			} else if(data.code == 2) {
+				layer.alert("部分案例caseNum有误！");
+				$("#caseNumDiv").show();
+				$('#caseNum').html("<font style='color: red'>"+data.msg+"</font>");
 			} else {
-				parent.layer.alert(data.msg)
-				var index = parent.layer.getFrameIndex(window.name); // 获取窗口索引
-				parent.layer.close(index);
+				parent.layer.alert("<font style='color: red'>"+data.msg+"</font>");
 			}
-
 		}
 	});
 
@@ -89,7 +91,7 @@ function toStep21() {
 function showTaskList() {
 	layer.open({
 		type : 2,
-		title : '关联场景',
+		title : '选择测试任务',
 		maxmin : true,
 		shadeClose : false, // 点击遮罩关闭层
 		area : [ '500px', '520px' ],
@@ -103,14 +105,30 @@ function loadTask(taskId,taskName){
 function getTreeData(taskId) {
 	$.ajax({
 		type : "post",
+		beforeSend : beforeSend, //用于在向服务器发送请求之前执行显示进度条
+		async : true, //异步
 		url : "/task/getTreeData",// 获得svn库的树形结构路径
 		data : {
 			'taskId' : taskId
 		},
 		success : function(tree) {
 			loadTree(tree);
-		}
+		},
+		complete : complete
 	});
+}
+function beforeSend(XMLHttpRequest) {
+	// 禁用按钮防止重复提交
+	$("#submit").attr({disabled : "disabled"});
+	// 显示进度条
+	$("#showLoading").append("<div><img src='/img/loading-bar.gif' /><div>");
+}
+
+function complete(XMLHttpRequest, textStatus) {
+	// 取消禁用按钮
+	$("#submit").removeAttr("disabled");
+	// 隐藏进度条
+	$("#showLoading").remove();
 }
 function loadTree(tree) {
 	$('#jstree').jstree({

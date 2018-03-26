@@ -6,7 +6,7 @@ import java.sql.Date;
 public class BatchDO implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
-	private Integer batchId;
+	private Long batchId;
 	//批次名称
 	private String batchName;
 	//描述
@@ -23,10 +23,10 @@ public class BatchDO implements Serializable{
 	private Integer deleted;
 	//批次对应的batchSvnPath
 	private String batchSvnPath;
-	public Integer getBatchId() {
+	public Long getBatchId() {
 		return batchId;
 	}
-	public void setBatchId(Integer batchId) {
+	public void setBatchId(Long batchId) {
 		this.batchId = batchId;
 	}
 	public String getBatchName() {

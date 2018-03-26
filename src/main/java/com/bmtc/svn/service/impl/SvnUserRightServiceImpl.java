@@ -1,5 +1,6 @@
 package com.bmtc.svn.service.impl;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import org.tmatesoft.svn.core.io.SVNRepository;
 import com.bmtc.common.config.BMTCConfig;
 import com.bmtc.common.domain.Tree;
 import com.bmtc.common.utils.BuildTree;
+import com.bmtc.common.utils.GetSystemProperties;
 import com.bmtc.svn.common.utils.EncryptUtil;
 import com.bmtc.svn.dao.SvnRepoDao;
 import com.bmtc.svn.dao.SvnUserRightDao;
@@ -125,17 +127,27 @@ public class SvnUserRightServiceImpl implements SvnUserRightService
 			logger.info("添加" + res + "条SVN用户权限完成");
 		}
 		
-/*		// 根据svn仓库名查询仓库信息
-		SvnRepo svnRepo = svnRepoService.querySvnRepoBySvnRepoName(svnUserAuthzInfo.getSvnRepoName());
-			
-		// 根据svn url截取svn服务器的IP地址
-		String svnServerIp = svnRepo.getSvnRepoUrl().split("//")[1].split("/")[0];
+
+/*		// 获取本机IP地址，根据IP地址从数据库中查询svn配置文件(authz, passwd, svnserve.conf)在本地的存放位置svnConfFilesLocation
+		InetAddress netAddress = GetSystemProperties.getInetAddress();
 		
-		// 根据svn的IP地址查询超级用户的svn用户名
-		ConfigInfoDO configInfoDO = configService.getConfigInfo(svnServerIp);
+		// 获取本机IP地址
+		String localhostIp = GetSystemProperties.getHostIp(netAddress);
 		
-		String svnConfFilesLocation = configInfoDO.getSvnConfFilesLocation(); // 配置文件中的bmtcConfig.getSvnConfFilesLocation()
-*/
+		// 获取本机的计算机名称
+		// String localhostName = GetSystemProperties.getHostName(netAddress);
+		
+		// 根据本机IP地址查询SVN配置文件的临时存放位置
+		ConfigInfoDO configInfoDO = configService.getConfigInfo(localhostIp);
+		
+		String svnConfFilesLocation = null;
+		
+		if(configInfoDO != null && configInfoDO.getSvnConfFilesLocation() != null 
+				&& !"".equals(configInfoDO.getSvnConfFilesLocation())) {
+			svnConfFilesLocation = configInfoDO.getSvnConfFilesLocation(); 
+		} else {
+			svnConfFilesLocation = bmtcConfig.getSvnConfFilesLocation();
+		}*/
 		
 		// 将数据库中的svn用户和权限信息写入passwd和authz文件中，并上传到远程svn服务器对应仓库的conf目录下
 		svnService.exportConfigToSvnServer(svnUserAuthz.getSvnRepoName(), bmtcConfig.getSvnConfFilesLocation());

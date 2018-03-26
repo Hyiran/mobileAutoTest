@@ -14,8 +14,13 @@ function update() {
 		cache : true,
 		type : "POST",
 		url : "/task/update",
-		data : $('#signupForm').serialize(),// 你的formid
+		data : new FormData($('#signupForm')[0]),
+		processData : false,
+		contentType : false,
 		async : false,
+		beforeSend : function() {
+			uploading = true;
+		},
 		error : function(request) {
 			alert("修改失败，请联系管理员！");
 		},
@@ -26,11 +31,8 @@ function update() {
 				var index = parent.layer.getFrameIndex(window.name); // 获取窗口索引
 				parent.layer.close(index);
 			} else {
-				parent.layer.msg(data.msg);
-				var index = parent.layer.getFrameIndex(window.name); // 获取窗口索引
-				parent.layer.close(index);
+				parent.layer.alert(data.msg);
 			}
-
 		}
 	});
 
@@ -50,7 +52,7 @@ function loadDept(deptId,deptName){
 	$("#deptName").val(deptName);
 	$.ajax({
 		type : "post",
-		url : "/task/getSvnPath",// 获得svn库的树形结构路径
+		url : "/task/getSvnRepoPath",// 获得svn库的树形结构路径
 		data : {
 			'deptId' : deptId
 		},
@@ -64,26 +66,13 @@ function loadDept(deptId,deptName){
 	});
 }
 function toStep12() {
-	var batchId = $("#batchId").val();
-	var deptName = $("#deptName").val();
-	$.ajax({
-		type : "POST",
-		url : "/task/checkBatchName/",// 获得svn库的树形结构路径
-		data : { // 要传递的数据
-			'batchId' : batchId,
-			'deptName' : deptName,
-		},
-		success : function(result) {
-			if (result.code != 0) {
-				parent.layer.msg(result.msg);
-			} else {
-				if(validateRule().form()){
-					$("#part1").hide();
-					$("#part2").show();
-				}
-			}
-		}
-	});
+	var taskName=$("#taskName").val();
+	if(taskName !== null && taskName !== undefined && taskName !== '') {
+		$("#part1").hide();
+		$("#part2").show();
+	} else {
+		parent.layer.msg("测试任务名称不能为空！");
+	}
 }
 function toStep21() {
 	$("#part1").show();
@@ -140,12 +129,14 @@ var openBatch = function(){
 };
 function loadBatch(batchId,batchName){
 	$("#batchId").val(batchId);
+	var deptId = $("#deptId").val();
 	$("#batchName").val(batchName);
 	$.ajax({
 		type : "post",
 		url : "/task/getBatchSvnPath",// 获得svn库的树形结构路径
 		data : {
-			'batchId' : batchId
+			'batchId' : batchId,
+			'deptId' : deptId
 		},
 		success : function(data) {
 			if(data.code != 0){

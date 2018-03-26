@@ -8,12 +8,11 @@
 			<div class="col-sm-12">
 				<div class="ibox float-e-margins">
 					<div class="ibox-content">
-						<form class="form-horizontal m-t" id="signupForm">
+						<!-- <form class="form-horizontal m-t" id="signupForm"> -->
+						<form class="form-horizontal m-t" id="formId" >
 							<div id="part1">
 								<!-- 测试任务ID，隐藏域 -->
 								<input id="taskId" name="taskId" type="hidden">
-								<!-- 关联测试任务的脚本的caseName，隐藏域 -->
-								<input id="testSuiteCaseNames" name="testSuiteCaseNames" type="hidden">
 								<!-- 测试任务名称 -->
 								<div class="form-group">
 									<label class="col-sm-3 control-label">测试任务名称：</label>
@@ -35,7 +34,7 @@
 								<div class="form-group">
 									<label class="col-sm-3 control-label">测试任务SVN库路径：</label>
 									<div class="col-sm-8">
-										<input id="svnPath" name="svnPath" class="form-control"
+										<input id="svnPath" readonly="readonly" name="svnPath" class="form-control"
 											type="text" placeholder="eg:svn://22.11.31.36/automation_test/branches">
 									</div>
 								</div>
@@ -55,7 +54,7 @@
 								<div class="form-group">
 									<label class="col-sm-3 control-label">测试任务SVN批次分支名称：</label>
 									<div class="col-sm-8">
-										<input id="batchSvnPath" name="batchSvnPath"
+										<input id="batchSvnPath" readonly="readonly" name="batchSvnPath"
 											class="form-control" type="text" placeholder="eg:705batch">
 									</div>
 								</div>
@@ -78,6 +77,9 @@
 									</div>
 								</div>
 							</div>
+							<!-- </form> -->
+							
+							
 							<div id="part2">
 								<!-- 导入手工案例 -->
 								<div class="form-group">
@@ -92,8 +94,8 @@
 									<div class="col-sm-8 col-sm-offset-3">
 										<button type="button" class="btn btn-primary"
 											onclick="toStep21()" style="margin-left: 300px">上一步</button>
-										<button type="submit" class="btn btn-primary" 
-											style="margin-left: 60px">提交</button>
+										<input id="upload" type="button" class="btn btn-primary" 
+											style="margin-left: 60px" onclick="save()" value="提交 "></input>
 									</div>
 								</div>
 							</div>

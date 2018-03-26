@@ -98,7 +98,7 @@ function validateRule() {
 var openSvnRepo = function() {
 	layer.open({
 		type:2,
-		title:"选择SVN仓库",
+		title:"选择SVN产品仓库",
 		area : [ '300px', '450px' ],
 		content:"/svn/svnRepo/treeView"
 	});

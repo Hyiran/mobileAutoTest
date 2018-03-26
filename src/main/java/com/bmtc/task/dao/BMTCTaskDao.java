@@ -3,6 +3,8 @@ package com.bmtc.task.dao;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.annotations.Param;
+
 import com.bmtc.common.utils.Query;
 import com.bmtc.task.domain.BMTCTask;
 
@@ -26,8 +28,6 @@ public interface BMTCTaskDao {
 	// 修改测试任务
 	int update(BMTCTask task);
 	// 删除测试任务
-	int remove(Long taskId);
-	// 批量删除测试任务
-	int batchRemove(Long[] taskIds);
+	int remove(@Param("isDeleted")Long isDeleted,@Param("taskId")Long taskId);
 	
 }

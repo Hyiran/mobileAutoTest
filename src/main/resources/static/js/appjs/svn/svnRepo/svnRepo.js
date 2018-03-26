@@ -10,11 +10,11 @@ function load() {
 			{
 				method : 'get', // 服务器数据的请求方式 get or post
 				url : prefix + "/querySvnRepo", // 服务器数据的加载地址
-				showRefresh : true,
-				showToggle : true,
+				showRefresh : true, // 是否显示刷新按钮
+				showToggle : true, // 是否显示详细视图和列表视图的切换按钮
 				// showColumns : true,
 				iconSize : 'outline',
-				toolbar : '#exampleToolbar',
+				toolbar : '#exampleToolbar', //工具按钮用哪个容器
 				striped : true, // 设置为true会有隔行变色效果
 				dataType : "json", // 服务器返回的数据类型
 				pagination : true, // 设置为true会在底部显示分页条
@@ -55,22 +55,22 @@ function load() {
 					},
 					{
 						field : 'svnRepoName',
-						title : 'SVN仓库名',
+						title : 'SVN产品仓库名',
 						align : 'center'
 					},
 					{
 						field : 'svnRepoPath',
-						title : 'SVN仓库路径',
+						title : 'SVN产品仓库路径',
 						align : 'center'
 					},
 					{
 						field : 'svnRepoUrl',
-						title : 'SVN仓库URL',
+						title : 'SVN产品仓库URL',
 						align : 'center'
 					},
 					{
 						field : 'svnRepoDes',
-						title : 'SVN仓库描述',
+						title : 'SVN产品仓库描述',
 						align : 'center'
 					},
 					{
@@ -80,13 +80,13 @@ function load() {
 							var e = '<a  class="btn btn-primary btn-sm ' + s_edit_h + '" href="#" mce_href="#" title="编辑" onclick="edit(\''
 								+ row.svnRepoName
 								+ '\')"><i class="fa fa-edit"></i></a> ';
-							var d = '<a  class="btn btn-primary btn-sm ' + s_addSvnUser_h + '" href="#" mce_href="#" title="添加SVN用户" onclick="addSvnUser(\''
+/*							var d = '<a  class="btn btn-primary btn-sm ' + s_addSvnUser_h + '" href="#" mce_href="#" title="添加SVN用户" onclick="addSvnUser(\''
 								+ row.svnRepoName
 								+ '\')"><i class="fa fa-plus"></i></a> ';
 							var f = '<a class="btn btn-warning btn-sm ' + s_remove_h + '" href="#" title="删除"  mce_href="#" onclick="remove(\''
 								+ row.svnRepoName
-								+ '\')"><i class="fa fa-remove"></i></a> ';
-							return e + d + f;
+								+ '\')"><i class="fa fa-remove"></i></a> '; */
+							return e;
 						}
 					} ]
 			});
@@ -100,7 +100,7 @@ function add() {
 	// iframe层
 	layer.open({
 		type : 2,
-		title : '增加SVN仓库',
+		title : '添加SVN产品仓库',
 		maxmin : true,
 		shadeClose : false, // 点击遮罩关闭层
 		area : [ '800px', '410px' ],
@@ -111,7 +111,7 @@ function add() {
 function edit(svnRepoName) {
 	layer.open({
 		type : 2,
-		title : '修改SVN仓库',
+		title : '修改SVN产品仓库',
 		maxmin : true,
 		shadeClose : false,
 		area : [ '800px', '410px' ],
@@ -119,7 +119,7 @@ function edit(svnRepoName) {
 	});
 }
 
-function addSvnUser(svnRepoName) {
+/*function addSvnUser(svnRepoName) {
 	layer.open({
 		type : 2,
 		title : '添加SVN用户',
@@ -128,7 +128,7 @@ function addSvnUser(svnRepoName) {
 		area : [ '800px', '520px' ],
 		content : '/svn/svnUser/add/' + svnRepoName 
 	});
-}
+}*/
 
 function remove(svnRepoName) {
 	layer.confirm('确定要删除选中的记录？', {

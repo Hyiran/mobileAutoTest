@@ -1,6 +1,5 @@
 package com.bmtc.task.controller;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.bmtc.common.annotation.Log;
 import com.bmtc.common.config.BMTCConfig;
@@ -25,7 +25,8 @@ import com.bmtc.common.utils.PageUtils;
 import com.bmtc.common.utils.Query;
 import com.bmtc.common.utils.R;
 import com.bmtc.script.service.ScriptService;
-import com.bmtc.system.domain.BatchDO;
+import com.bmtc.svn.domain.SvnCreateBranchInfo;
+import com.bmtc.svn.service.SvnAdminService;
 import com.bmtc.system.domain.DeptDO;
 import com.bmtc.system.service.BatchService;
 import com.bmtc.system.service.DeptService;
@@ -56,6 +57,8 @@ public class BMTCTaskController extends BaseController{
 	DeptService deptService;
 	@Autowired
 	BMTCConfig bmtcConfig;
+	@Autowired
+	SvnAdminService svnAdminService;
 	
 	/**
 	 * 前段请求访问测试任务列表页面
@@ -143,14 +146,10 @@ public class BMTCTaskController extends BaseController{
 	@Log("保存测试任务")
 	@PostMapping("/save")
 	@ResponseBody
-	R save(BMTCTask bmtcTask) {
+	R save(@RequestParam(value = "uploadFile")MultipartFile file,BMTCTask bmtcTask) {
 		logger.info("BMTCTaskController.save() start");
-		if (bMTCTaskService.save(bmtcTask) > 0) {
-			logger.info("BMTCTaskController.save() end");
-			return R.ok();
-		}
 		logger.info("BMTCTaskController.save() end");
-		return R.error();
+		return bMTCTaskService.save(bmtcTask,file);
 	}
 	/**
 	 * 测试任务edit页面跳转
@@ -165,12 +164,21 @@ public class BMTCTaskController extends BaseController{
 		BMTCTask bMTCTask = bMTCTaskService.get(taskId);
 		// 通过测试任务对象中的deptId获得，测试任务所属的产品对象
 		DeptDO deptDO = deptService.get(Long.valueOf(bMTCTask.getDeptId().toString()));
-		// 通过测试任务对象中的batchId获得，测试任务所属的批次从对象
-		BatchDO batchDO = batchService.get(Integer.valueOf(bMTCTask.getBatchId().toString()));
+		SvnCreateBranchInfo info = svnAdminService.getSvnBranchInfoIdAndBatchId(Long.valueOf(deptDO.getDeptId()),null);
+		// 判断url是否为空
+		if(info == null) {
+			return "获取所选产品对应SVN库路径失败，请重新选择！";
+		}
+		String newBranch = info.getNewBranch().replace("\\", "/");
+		// 判断newBranch是否为空
+		if(newBranch == null || "".equals(newBranch)) {
+			return "此产品对应的SVN仓库路径不存在，请联系SVN管理员！";
+		}
+		String batchSVNName = newBranch.replace(info.getSvnRepoUrl()+"/", "");
 		model.addAttribute("bMTCTask", bMTCTask);
 		model.addAttribute("svnPath", deptDO.getSvnName());
-		model.addAttribute("batchSvnPath", batchDO.getBatchSvnPath());
-		model.addAttribute("batchId", batchDO.getBatchId());
+		model.addAttribute("batchSvnPath", batchSVNName);
+		model.addAttribute("batchId", bMTCTask.getBatchId());
 		logger.info("BMTCTaskController.edit() end");
 		return prefix+"/edit";
 	}
@@ -182,14 +190,10 @@ public class BMTCTaskController extends BaseController{
 	@RequiresPermissions("test:task:edit")
 	@PostMapping("/update")
 	@ResponseBody
-	R update(BMTCTask bMTCTask) {
+	R update(@RequestParam(value = "uploadFile")MultipartFile file,BMTCTask bMTCTask) {
 		logger.info("BMTCTaskController.update() start");
-		if (bMTCTaskService.update(bMTCTask) > 0) {
-			logger.info("BMTCTaskController.update() end");
-			return R.ok();
-		}
 		logger.info("BMTCTaskController.update() end");
-		return R.error();
+		return bMTCTaskService.update(bMTCTask,file);
 	}
 	
 	/**
@@ -206,10 +210,13 @@ public class BMTCTaskController extends BaseController{
 		int r = bMTCTaskService.batchremove(taskIds);
 		if (r > 0) {
 			logger.info("BMTCTaskController.batchRemove() end");
-			return R.ok();
+			return R.ok("删除成功！");
+		} else if(r == -1) {
+			logger.info("BMTCTaskController.batchRemove() end");
+			return R.error("测试任务还有关联的执行计划，请先删除关联的执行计划！");
 		}
 		logger.info("BMTCTaskController.batchRemove() end");
-		return R.error();
+		return R.error("删除失败！");
 	}
 	/**
 	 * 测试任务删除
@@ -225,24 +232,14 @@ public class BMTCTaskController extends BaseController{
 		int r = bMTCTaskService.remove(taskId);
 		if (r > 0) {
 			logger.info("BMTCTaskController.remove() end");
-			return R.ok();
+			return R.ok("删除成功！");
+		} else if(r == -1) {
+			logger.info("BMTCTaskController.batchRemove() end");
+			return R.error("测试任务还有关联的执行计划，请先删除关联的执行计划！");
 		}
 		logger.error("BMTCTaskController.remove() end");
-		return R.error();
+		return R.error("删除失败！");
 	}
-	/**
-	 * 查询测试任务名称是否存在
-	 * @param params
-	 * @return boolean
-	 */
-//	@PostMapping("/exist")
-//	@ResponseBody
-//	boolean exist(@RequestParam Map<String, Object> params) {
-//		logger.info("BMTCTaskController.exist() start");
-//		logger.info("BMTCTaskController.exist() end");
-//		// 存在，不通过，false
-//		return !bMTCTaskService.exist(params);
-//	}
 	/**
 	 * 获取测试任务关联脚本Tree信息
 	 * @param String svnUrl
@@ -262,40 +259,70 @@ public class BMTCTaskController extends BaseController{
 			return null;
 		}
 	}
-
-	/**
-	 * 判断前端选择的产品及分支，是否存在
-	 * @param batchName
-	 * @return
-	 */
-	@PostMapping("/checkBatchName")
-	@Log("判断批次路径是否存在")
-	@ResponseBody
-	R checkBatchName(@RequestParam String batchId,@RequestParam String deptName) {
-		logger.info("BMTCTaskController.checkBatchName() start");
-		BatchDO batchDO = batchService.get(Integer.valueOf(batchId));
-		File file = new File(bmtcConfig.getLocalPath()+"/"+deptName+"/"+batchDO.getBatchSvnPath());
-		boolean exists = file.exists();
-		if(exists){
-			return R.ok();
-		}
-		logger.info("BMTCTaskController.checkBatchName() end");
-		// 不存在，不通过，false
-		return R.error("所属产品下无此批次分支!");
-	}
+//
+//	/**
+//	 * 判断前端选择的产品及分支，是否存在
+//	 * @param batchName
+//	 * @return
+//	 */
+//	@PostMapping("/checkBatchName")
+//	@Log("判断批次路径是否存在")
+//	@ResponseBody
+//	R checkBatchName(@RequestParam String batchId,@RequestParam String deptId) {
+//		logger.info("BMTCTaskController.checkBatchName() start");
+//		// 判断产品名称
+//		if(deptId == null || "".equals(deptId)) {
+//			logger.info("BMTCTaskController.checkBatchName() end");
+//			return R.error("产品不能为空!");
+//		}
+//		// 判断批次ID
+//		if(batchId == null || "".equals(batchId)) {
+//			logger.info("BMTCTaskController.checkBatchName() end");
+//			return R.error("批次不能为空!");
+//		}
+//		// 获得产品和批次对应的svn路径
+//		SvnCreateBranchInfo info = svnAdminService.getSvnBranchInfoIdAndBatchId(Long.valueOf(deptId),Long.valueOf(batchId));
+//		// 判断url是否为空
+//		if(info == null) {
+//			return R.error("所选择的产品和批次无对应SVN库，请联系SVN管理员!");
+//		}
+//		String svnRepoUrl = info.getSvnRepoUrl();
+//		// 判断url是否为空
+//		if(svnRepoUrl == null || "".equals(svnRepoUrl)) {
+//			return R.error("此产品和批次对应的SVN仓库路径不存在，请联系SVN管理员！");
+//		}
+//		String filePath = svnRepoUrl.replace(info.getSvnRepoUrl(), bmtcConfig.getLocalPath());
+//		File file = new File(filePath);
+//		boolean exists = file.exists();
+//		if(exists){
+//			return R.ok();
+//		}
+//		logger.info("BMTCTaskController.checkBatchName() end");
+//		// 不存在，不通过，false
+//		return R.error("所属产品或批次<b>SVN路径</b>与本地路径不匹配，请先到“脚本管理”界面同步所属产品的脚本!");
+//	}
 	
 	/**
 	 * 获取该产品对应的SVN路径
 	 * @param deptId
 	 * @return
 	 */
-	@PostMapping("/getSvnPath")
+	@PostMapping("/getSvnRepoPath")
 	@ResponseBody
-	R getSvnPath(@RequestParam String deptId) {
+	R getSvnRepoPath(@RequestParam String deptId) {
 		logger.info("BMTCTaskController.getSvnPath() start");
-		String productSvnPath = bMTCTaskService.getProductSvnPath(deptId);
-		logger.info("BMTCTaskController.getSvnPath() end");
-		return R.ok(productSvnPath);
+		try {
+			SvnCreateBranchInfo info = svnAdminService.getSvnBranchInfoIdAndBatchId(Long.valueOf(deptId),null);
+			if(info == null) {
+				logger.info("BMTCTaskController.getSvnPath() end");
+				return R.error("获取所选产品对应SVN库路径不存在，请重新选择！");
+			}
+			logger.info("BMTCTaskController.getSvnPath() end");
+			return R.ok(info.getSvnRepoUrl());
+		} catch (Exception e) {
+			logger.info("BMTCTaskController.getSvnPath() end");
+			return R.error("获取所选产品对应SVN库路径不存在，请重新选择！");
+		}
 	}
 	/**
 	 * 获取该批次对应的SVN分支路径
@@ -304,11 +331,18 @@ public class BMTCTaskController extends BaseController{
 	 */
 	@PostMapping("/getBatchSvnPath")
 	@ResponseBody
-	R getBatchSvnPath(@RequestParam String batchId) {
+	R getBatchSvnPath(@RequestParam String batchId,@RequestParam String deptId) {
 		logger.info("BMTCTaskController.getBatchSvnPath() start");
-		BatchDO batchDO = batchService.get(Integer.valueOf(batchId));
-		logger.info("BMTCTaskController.getBatchSvnPath() end");
-		return R.ok(batchDO.getBatchSvnPath());
+		try {
+			SvnCreateBranchInfo info = svnAdminService.getSvnBranchInfoIdAndBatchId(Long.valueOf(deptId),Long.valueOf(batchId));
+			String newBranch = info.getNewBranch().replace("\\", "/");
+			String batchSVNName = newBranch.replace(info.getSvnRepoUrl().replace("\\", "/")+"/", "");
+			logger.info("BMTCTaskController.getBatchSvnPath() end");
+			return R.ok(batchSVNName);
+		} catch (Exception e) {
+			logger.info("BMTCTaskController.getBatchSvnPath() end");
+			return R.error("此产品下没有这个批次分支，请重新选择！");
+		}
 	}
 	/**
 	 * 测试任务add页面打开选择产品页面

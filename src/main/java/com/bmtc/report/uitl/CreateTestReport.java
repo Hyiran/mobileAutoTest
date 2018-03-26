@@ -32,7 +32,7 @@ public class CreateTestReport {
 
 	public static List<Kw> kwList = null;
 
-	// 自增标题样式
+	// 自定义标题
 	public static final RtfParagraphStyle STYLE_HEADING_4 = new RtfParagraphStyle(
 			"heading 4", "Normal");
 	public static final RtfParagraphStyle STYLE_HEADING_5 = new RtfParagraphStyle(
@@ -41,7 +41,7 @@ public class CreateTestReport {
 			"heading 6", "Normal");
 	public static final RtfParagraphStyle STYLE_HEADING_7 = new RtfParagraphStyle(
 			"heading 7", "Normal");
-	//对标题进行注册
+	//设置自定义标题样式
 	static {
 		STYLE_HEADING_4.setStyle(Font.BOLD);
 		STYLE_HEADING_4.setSize(12);
@@ -76,27 +76,34 @@ public class CreateTestReport {
 			String outputFilePath) {
 		logger.info("CreateTestReport.createTestReport() start");
 		try {
+			//创建文档
 			Document document = new Document();
+			//创建目标文档的实体
 			RtfWriter2 writer;
 			writer = RtfWriter2.getInstance(document, new FileOutputStream(
 					outputFilePath + fileName + ".doc"));
 			document.open();// 打开文档准备写入
+			//设置文档页边距
 			document.setMargins(90f, 90f, 72f, 72f);
+			//注入字体
 			BaseFont bfChinese = BaseFont.createFont("STSongStd-Light",
 					"UniGB-UCS2-H", false);
-
+			
+			//设置1一级标题样式
 			RtfParagraphStyle rtfGsBt1 = RtfParagraphStyle.STYLE_HEADING_1;
 			rtfGsBt1.setAlignment(Element.ALIGN_CENTER);
 			rtfGsBt1.setStyle(Font.BOLD);
 			rtfGsBt1.setSize(20);
 			rtfGsBt1.setSpacingBefore(30);
 			rtfGsBt1.setSpacingAfter(20);
-
+			
+			//设置2一级标题样式
 			RtfParagraphStyle rtfGsBt2 = RtfParagraphStyle.STYLE_HEADING_2;
 			rtfGsBt2.setStyle(Font.BOLD);
 			rtfGsBt2.setSize(16);
 			rtfGsBt2.setSpacingAfter(20);
-
+			
+			//设置3一级标题样式
 			RtfParagraphStyle rtfGsBt3 = RtfParagraphStyle.STYLE_HEADING_3;
 			rtfGsBt3.setStyle(Font.BOLD);
 			rtfGsBt3.setSize(14);
@@ -116,52 +123,74 @@ public class CreateTestReport {
 			
 			//设置字体
 			Font font = new Font(bfChinese, 12, Font.NORMAL);
-
+			
+			//获取读取xml文件所在路径
 			String pathPrefix = inputFilePath.substring(0,
 					inputFilePath.lastIndexOf("output.xml") - 1);
-
+			
+			//将xml文件中的test标签转换为Test实体类并返回其集合
 			List<Test> tests = xmlToJavaObject.stringToJava(inputFilePath);
 			for (Test test : tests) {
+				//将Test名称作为1级标题
 				Paragraph title = new Paragraph(test.getName(), rtfGsBt1);
+				//将标题加入文档
 				document.add(title);
+				//获取test标签下的所有1级kw标签
 				List<Kw> kws1 = test.getKw();
 				int i = 1;
 				for (Kw kw1 : kws1) {
+					//判断该标签是循环标签就打断
 					if ("for".equals(kw1.getType())
-							|| "foritem".equals(kw1.getType())) {
-						break;
+					    || "foritem".equals(kw1.getType())) {
+						    break;
 					} else {
+						//设置1级子标题
 						Paragraph childrenTitle1 = new Paragraph(i + ".  "
-								+ kw1.getName(), rtfGsBt2);
+						    + kw1.getName(), rtfGsBt2);
 						document.add(childrenTitle1);
+						//如果msg标签的值不为空
 						if (kw1.getMsg() != null && !kw1.getMsg().isEmpty()) {
 							List<Msg> msgs1 = kw1.getMsg();
 							for (Msg msg1 : msgs1) {
+								//如果msg属性为null或者为fail
 								if (msg1.getHtml() == null
 										&& "FAIL".equals(msg1.getLevel())) {
+									//创建新段落
 									Paragraph context = new Paragraph();
+									//将msg内容写入段落
 									context.add(msg1.getContent());
+									//设置段落字体
 									context.setFont(font);
+									//设置段落间距
 									context.setSpacingAfter(20);
+									//设置段落首行缩进
 									context.setFirstLineIndent(40);
+									//将段落加入文档
 									document.add(context);
 								}
+								//如果msg标签的html属性为yes 
 								if ("yes".equals(msg1.getHtml())) {
+									//截取图片的src
 									String str = msg1.getContent().substring(
 													msg1.getContent().indexOf("src") + 5,
 													msg1.getContent().lastIndexOf("png") + 3);
+									//替换路径中的"\"
 									String src = str.replaceAll("\\\\", "/")
 											.replaceAll("\\./", pathPrefix);
 									Paragraph context = new Paragraph();
+									//获取截图的实体
 									Image img = Image.getInstance(src);
+									//设置图片大小
 									img.scalePercent(20);
 									context.add(img);
+									//设置图片居中显示
 									context.setAlignment(Element.ALIGN_CENTER);
 									document.add(context);
 
 								}
 							}
 						}
+						//获取1级kw标签下的所有2级kw标签
 						if (kw1.getKw() != null && !kw1.getKw().isEmpty()) {
 							List<Kw> kws2 = kw1.getKw();
 							int j = 1;
@@ -205,8 +234,8 @@ public class CreateTestReport {
 											}
 										}
 									}
-									if (kw2.getKw() != null
-											&& !kw2.getKw().isEmpty()) {
+									//获取2级kw标签下的所有3级kw标签
+									if (kw2.getKw() != null&& !kw2.getKw().isEmpty()) {
 										List<Kw> kws3 = kw2.getKw();
 										int k = 1;
 										for (Kw kw3 : kws3) {
@@ -247,6 +276,7 @@ public class CreateTestReport {
 														}
 													}
 												}
+												//获取3级kw标签下的所有4级kw标签
 												if (kw3.getKw() != null&& !kw3.getKw().isEmpty()) {
 													List<Kw> kws4 = kw3.getKw();
 													int l = 1;
@@ -271,9 +301,9 @@ public class CreateTestReport {
 																	if ("yes".equals(msg4.getHtml())) {
 																		String str = msg4.getContent().substring(
 																			msg4.getContent().indexOf("src") + 5,
-																						msg4.getContent().lastIndexOf("png") + 3);
+																			msg4.getContent().lastIndexOf("png") + 3);
 																		String src = str.replaceAll("\\\\","/").replaceAll(
-																					"\\./",pathPrefix);
+																			"\\./",pathPrefix);
 																		Paragraph context = new Paragraph();
 																		Image img = Image.getInstance(src);
 																		img.scalePercent(20);
@@ -284,6 +314,7 @@ public class CreateTestReport {
 																	}
 																}
 															}
+															//获取4级kw标签下的所有5级kw标签
 															if (kw4.getKw() != null && !kw4.getKw().isEmpty()) {
 																List<Kw> kws5 = kw4.getKw();
 																int m = 1;
@@ -307,10 +338,10 @@ public class CreateTestReport {
 																				}
 																				if ("yes".equals(msg5.getHtml())) {
 																					String str = msg5.getContent().substring(
-																							msg5.getContent().indexOf("src") + 5,
-																								msg5.getContent().lastIndexOf("png") + 3);
+																						msg5.getContent().indexOf("src") + 5,
+																						msg5.getContent().lastIndexOf("png") + 3);
 																					String src = str.replaceAll("\\\\","/").replaceAll(
-																									"\\./",pathPrefix);
+																						"\\./",pathPrefix);
 																					Paragraph context = new Paragraph();
 																					Image img = Image.getInstance(src);
 																					img.scalePercent(20);
@@ -322,6 +353,7 @@ public class CreateTestReport {
 																			}
 																		}
 																		kwList = new ArrayList<>();
+																		//递归遍历5级kw标签下的所有kw标签并返回作为6级标签
 																		List<Kw> kws6 = getKw(kw5);
 																		int n = 1;
 																		for (Kw kw6 : kws6) {
@@ -344,11 +376,16 @@ public class CreateTestReport {
 																						}
 																						if ("yes".equals(msg6.getHtml())) {
 																							String str = msg6.getContent().substring(
-																											msg6.getContent().indexOf("src") + 5,
-																											msg6.getContent().lastIndexOf("png") + 3);
+																								msg6.getContent().indexOf("src") + 5,
+																								msg6.getContent().lastIndexOf("png") + 3);
 																							String src = str.replaceAll("\\\\","/")
-																									.replaceAll("\\./",pathPrefix);
+																								.replaceAll("\\./",pathPrefix);
 																							Paragraph context = new Paragraph();
+																							if (src.startsWith("file://"))
+																							{
+																								src = src.replace("file://", "/");
+																								logger.info("src:"+src);
+																							}
 																							Image img = Image.getInstance(src);
 																							img.scalePercent(20);
 																							context.add(img);

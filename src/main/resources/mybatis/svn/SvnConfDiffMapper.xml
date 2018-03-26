@@ -94,7 +94,7 @@
 				order by ${sort} ${order}
 			</when>
 			<otherwise>
-				order by a.id
+				order by a.svn_repo_id desc
 			</otherwise>
 		</choose>
 		<if test="offset != null and limit != null">

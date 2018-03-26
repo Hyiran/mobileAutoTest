@@ -110,8 +110,11 @@ public class UpdateLocalCodeBySvnRepoController extends BaseController {
 				e.printStackTrace();
 				return e.getMessage();
 			}
-			
-			logger.info("把版本号：" + workingVersion[i] + "checkout 或者 update到目录：" + wcDir + "中。");
+			if(workingVersion[i] == -1) {
+				logger.error("svn下载脚本异常，请检查svn参数是否正确");
+			} else {
+				logger.info("把版本号：" + workingVersion[i] + "checkout 或者 update到目录：" + wcDir + "中");
+			}
 			i++;
 		}
 		

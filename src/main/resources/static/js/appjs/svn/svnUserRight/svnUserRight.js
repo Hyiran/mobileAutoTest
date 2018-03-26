@@ -38,7 +38,8 @@ function load(svnRepoName) {
 						limit : params.limit,
 						offset : params.offset,
 						svnUserName: $('#searchSvnUserName').val(),
-						svnRepoName : svnRepoName
+						svnRepoName : svnRepoName,
+						name : $('#searchName').val()
 					};
 				},
 				// //请求服务器数据时，你可以通过重写参数的方式添加一些额外的参数，例如 toolbar中的参数 如果
@@ -53,27 +54,27 @@ function load(svnRepoName) {
 					},*/
 					{
 						field : 'svnRepoId', // 列字段名
-						title : 'SVN仓库序号', // 列标题
+						title : 'SVN产品仓库序号', // 列标题
 						align : 'center'
 					},
 					{
 						field : 'svnRepoName',
-						title : 'SVN仓库名',
+						title : 'SVN产品仓库名',
 						align : 'center'
 					},
 					{
 						field : 'svnRepoPath',
-						title : 'SVN仓库路径',
+						title : 'SVN产品仓库路径',
 						align : 'center'
 					},
 					{
 						field : 'svnRepoUrl',
-						title : 'SVN仓库URL',
+						title : 'SVN产品仓库URL',
 						align : 'center'
 					},
 					{
 						field : 'svnRepoDes',
-						title : 'SVN仓库描述',
+						title : 'SVN产品仓库描述',
 						align : 'center'
 					},
 					{
@@ -91,13 +92,13 @@ function load(svnRepoName) {
 						align : 'center',
 						formatter : function(value, row, index) {
 							var e = '<a  class="btn btn-primary btn-sm ' + s_addSvnUserRight_h + '" href="#" mce_href="#" title="添加SVN用户权限" onclick="add(\''
-								+ row.svnUserName + '\'' + ',' + '\'' + row.svnRepoName
+								+ row.name + '\'' + ',' + '\'' + row.svnUserName + '\'' + ',' + '\'' + row.svnRepoName
 								+ '\')"><i class="fa fa-plus"></i></a> ';
 /*							var d = '<a  class="btn btn-primary btn-sm ' + s_edit_h + '" href="#" mce_href="#" title="编辑SVN用户权限" onclick="edit(\''
 								+ row.svnUserName + '\'' + ',' + '\''+ row.svnRepoName
 								+ '\')"><i class="fa fa-edit"></i></a> ';*/
 							var f = '<a class="btn btn-warning btn-sm ' + s_remove_h + '" href="#" title="删除SVN用户权限"  mce_href="#" onclick="remove(\''
-								+ row.svnUserName + '\'' + ',' + '\''+ row.svnRepoName
+								+ row.name + '\'' + ',' + '\'' + row.svnUserName + '\'' + ',' + '\''+ row.svnRepoName
 								+ '\')"><i class="fa fa-remove"></i></a> ';
 							return e + f;
 						}
@@ -122,14 +123,14 @@ function query() {
 	layer.full(page); //默认全屏展示
 }
 
-function add(svnUserName, svnRepoName) {
+function add(name, svnUserName, svnRepoName) {
 	layer.open({
 		type : 2,
 		title : '添加SVN用户权限',
 		maxmin : true,
 		shadeClose : false, // 点击遮罩关闭层
 		area : [ '800px', '720px' ],
-		content : prefix + '/add/' + svnUserName + '/' + svnRepoName
+		content : prefix + '/add/' + name + '/' + svnUserName + '/' + svnRepoName
 	});
 }
 
@@ -144,14 +145,14 @@ function add(svnUserName, svnRepoName) {
 	});
 }*/
 
-function remove(svnUserName, svnRepoName) {
+function remove(name, svnUserName, svnRepoName) {
 	layer.open({
 		type : 2,
 		title : '删除SVN用户权限',
 		maxmin : true,
 		shadeClose : false,
 		area : [ '800px', '720px' ],
-		content : prefix + '/remove/' + svnUserName + '/' + svnRepoName // iframe的url
+		content : prefix + '/remove/' + name + '/' + svnUserName + '/' + svnRepoName // iframe的url
 	});
 }
 

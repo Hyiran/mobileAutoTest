@@ -8,7 +8,7 @@ import com.bmtc.system.domain.BatchDO;
 public interface BatchDao {
 	
 	//通过批次id获取批次对象
-	BatchDO get(Integer batchId);
+	BatchDO get(Long id);
 	
 	//查询批次数据
 	List<BatchDO> list(HashMap<String, Object> map);

@@ -22,7 +22,7 @@ public class ReadFileToString {
 	 * @param filePath 文件路径
 	 * @return 读取文件的内容
 	 */
-	public static StringBuffer getStrBuf (String filePath) throws IOException {
+	public static StringBuffer getStrBuf(String filePath) throws IOException {
 		StringBuffer strBuf = new StringBuffer();
 		try (Reader reader = new FileReader(filePath);
 				BufferedReader br = new BufferedReader(reader)) {

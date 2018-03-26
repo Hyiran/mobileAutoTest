@@ -1,9 +1,9 @@
 package com.bmtc.system.domain;
 
 public class UserLoginStatus {
-	public static final Integer DISABLED = 0;//ÓÃ»§½ûÖ¹×´Ì¬
-	public static final Integer NORMAL= 1 ;//ÓÃ»§Õı³£×´Ì¬
-	public static final Integer APPROVAL_PENDING = 2;//ÓÃ»§´ıÉóÅú×´Ì¬
+	public static final Integer DISABLED = 0;//ç”¨æˆ·ç¦æ­¢çŠ¶æ€
+	public static final Integer NORMAL= 1 ;//ç”¨æˆ·æ­£å¸¸çŠ¶æ€
+	public static final Integer APPROVAL_PENDING = 2;//ç”¨æˆ·å¾…å®¡æ‰¹çŠ¶æ€
 	
 	
 	}

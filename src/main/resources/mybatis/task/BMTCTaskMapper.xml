@@ -12,8 +12,10 @@
 		<result property = "svnPath" column = "svn_path" />
 		<result property = "deviceType" column = "device_type" />
 		<result property = "status" column = "status" />
+		<result property = "isDeleted" column = "isDeleted" />
 		<result property = "createdId" column = "user_id_create" />
 		<result property = "gmtCreate" column = "gmt_create" />
+		<result property = "gmtModified" column = "gmt_modified" />
 		<result property = "gmtModified" column = "gmt_modified" />
 	</resultMap>
 	
@@ -29,6 +31,7 @@
 		`device_type`,
 		`user_id_create`,
 		`status`,
+		`isDeleted`,
 		`gmt_create`,
 		`gmt_modified`
 		from test_task 
@@ -48,6 +51,7 @@
 		`device_type`,
 		`user_id_create`,
 		`status`,
+		`isDeleted`,
 		`gmt_create`,
 		`gmt_modified`
 		from test_task
@@ -59,6 +63,7 @@
 			<if test="batchId != null and batchId != ''"> and batch_id = #{batchId} </if>
 			<if test="batchName != null and batchName != ''"> and batch_name = #{batchName} </if>
 			<if test="status != null and status != ''"> and status = #{status} </if>
+			<if test="isDeleted != null and isDeleted != ''"> and isDeleted = #{isDeleted} </if>
 			<if test="svnPath != null and svnPath != ''"> and svn_path = #{svnPath} </if>
 			<if test="deviceType != null and deviceType != ''"> and device_type = #{deviceType} </if>
 			<if test="createdId != null and createdId != ''"> and user_id_create = #{createdId} </if>
@@ -88,6 +93,7 @@
 			<if test="batchId != null and batchId != ''"> and batch_id = #{batchId} </if>
 			<if test="batchName != null and batchName != ''"> and batch_name = #{batchName} </if>
 			<if test="status != null and status != ''"> and status = #{status} </if>
+			<if test="isDeleted != null and isDeleted != ''"> and isDeleted = #{isDeleted} </if>
 			<if test="svnPath != null and svnPath != ''"> and svn_path = #{svnPath} </if>
 			<if test="deviceType != null and deviceType != ''"> and device_type = #{deviceType} </if>
 			<if test="createdId != null and createdId != ''"> and user_id_create = #{createdId} </if>
@@ -106,6 +112,7 @@
 		`batch_id`,
 		`batch_name`,
 		`status`,
+		`isDeleted`,
 		`svn_path`,
 		`device_type`,
 		`user_id_create`,
@@ -120,6 +127,7 @@
 		#{batchId},
 		#{batchName},
 		#{status},
+		#{isDeleted},
 		#{svnPath},
 		#{deviceType},
 		#{createdId},
@@ -137,6 +145,7 @@
 			<if test="batchId != null">`batch_id` = #{batchId}, </if>
 			<if test="batchName != null">`batch_name` = #{batchName}, </if>
 			<if test="status != null">`status` = #{status}, </if>
+			<if test="isDeleted != null">`isDeleted` = #{status}, </if>
 			<if test="svnPath != null">`svn_path` = #{svnPath}, </if>
 			<if test="deviceType != null">`device_type` = #{deviceType}, </if>
 			<if test="createdId != null">`user_id_create` = #{createdId}, </if>
@@ -146,16 +155,24 @@
 		where task_id = #{taskId}
 	</update>
 
-	<delete id="remove">
-		delete from test_task where task_id = #{value}
-	</delete>
+	<update id="remove" parameterType="com.bmtc.task.domain.BMTCTask">
+		update 
+			test_task
+				set `isDeleted` = #{isDeleted}
+			where 
+				task_id = #{taskId}
+	</update>
 
-	<delete id="batchRemove">
-		delete from test_task where task_id in
-		<foreach item="taskId" collection="array" open="(" separator=","
-			close=")">
-			#{taskId}
-		</foreach>
-	</delete>
-
+<!-- 	<update id="batchRemove">
+		update 
+			test_task
+				set `isDeleted` = #{isDeleted}
+			where 
+				task_id in
+			<foreach item="taskId" collection="array" open="(" separator=","
+				close=")">
+				#{taskId}
+			</foreach>
+	</update>
+ -->	
 </mapper>

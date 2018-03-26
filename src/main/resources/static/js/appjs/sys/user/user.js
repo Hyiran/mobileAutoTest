@@ -11,7 +11,7 @@ function load(deptId) {
 			{
 				method : 'get', // 服务器数据的请求方式 get or post
 				url : prefix + "/list", // 服务器数据的加载地址
-				// showRefresh : true,
+				showRefresh : true,
 				// showToggle : true,
 				// showColumns : true,
 				iconSize : 'outline',
@@ -36,7 +36,8 @@ function load(deptId) {
 						limit : params.limit,
 						offset : params.offset,
 						name : $('#searchName').val(),
-						deptId : deptId
+						deptId : deptId,
+						username : $('#searchUserName').val()
 					};
 				},
 				// //请求服务器数据时，你可以通过重写参数的方式添加一些额外的参数，例如 toolbar 中的参数 如果

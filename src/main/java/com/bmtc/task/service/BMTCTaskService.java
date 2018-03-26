@@ -3,8 +3,11 @@ package com.bmtc.task.service;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.bmtc.common.domain.Tree;
 import com.bmtc.common.utils.Query;
+import com.bmtc.common.utils.R;
 import com.bmtc.system.domain.DeptDO;
 import com.bmtc.task.domain.BMTCTask;
 
@@ -26,9 +29,9 @@ public interface BMTCTaskService {
 	// 查询测试任务名称是否存在
 	boolean exist(Map<String, Object> params);
 	// 保存测试任务
-	int save(BMTCTask bmtcTask);
+	R save(BMTCTask bmtcTask, MultipartFile file);
 	// 修改测试任务
-	int update(BMTCTask bMTCTask);
+	R update(BMTCTask bMTCTask, MultipartFile file);
 	// 删除测试任务
 	int remove(Long taskId);
 	// 查询用户所属产品下的任务列表

@@ -182,6 +182,9 @@
 		    <if test="svnUserName != null and svnUserName != ''">
 				and b.svn_user_name = #{svnUserName}
 			</if>
+			<if test="name != null and name != ''">
+				and f.name = #{name}
+			</if>
 			<if test="svnRepoName != null and svnRepoName != ''">
 				and a.svn_repo_name = #{svnRepoName}
 			</if>
@@ -197,7 +200,7 @@
 				order by ${sort} ${order}
 			</when>
 			<otherwise>
-				order by a.svn_repo_id
+				order by a.svn_repo_id desc
 			</otherwise>
 		</choose>
 	    <if test="offset != null and limit != null">
@@ -213,6 +216,9 @@
 		<where>
 		    <if test="svnUserName != null and svnUserName != ''">
 				and b.svn_user_name = #{svnUserName}
+			</if>
+			<if test="name != null and name != ''">
+				and f.name = #{name}
 			</if>
 			<if test="svnRepoName != null and svnRepoName != ''">
 				and a.svn_repo_name = #{svnRepoName}
@@ -238,7 +244,7 @@
 	    join svn_user_authz c on (b.svn_repo_id = c.svn_repo_id and b.svn_user_id = c.svn_user_id)
 	    where c.svn_repo_id = #{svnRepoId} order by c.svn_path,b.svn_user_name
 	</select>
-				
+	
 	
 	<!-- 查询具有相同svn root的项目资源的权限列表 -->
 	<select id="getListByRootPath" resultMap="SvnUserAuthzInfoResultMap" >

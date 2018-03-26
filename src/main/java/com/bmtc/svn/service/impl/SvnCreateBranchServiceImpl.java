@@ -48,7 +48,7 @@ public class SvnCreateBranchServiceImpl implements SvnCreateBranchService {
 			.getLogger(SvnCreateBranchServiceImpl.class);
 	
 	@Autowired
-	SvnCreateBranchDao svnCreateBranchDao;
+	private SvnCreateBranchDao svnCreateBranchDao;
 	
 	@Autowired
 	private SvnRepoDao svnRepoDao;
@@ -188,21 +188,28 @@ public class SvnCreateBranchServiceImpl implements SvnCreateBranchService {
 				sess.execCommand("svn copy " + svnCreateBranch.getSvnTrunk() + " " + svnCreateBranch.getNewBranch()
 						+ " -m" + " \"" + svnCreateBranch.getCreateBranchComment() + "\""
 						+ " --username=" + svnRootUserName + " --password=" + svnUserRepoInfo.getSvnPassword());
-
+				
+				logger.info("svn copy " + svnCreateBranch.getSvnTrunk() + " " + svnCreateBranch.getNewBranch()
+						+ " -m" + " \"" + svnCreateBranch.getCreateBranchComment() + "\""
+						+ " --username=" + svnRootUserName + " --password=" + svnUserRepoInfo.getSvnPassword());
+				
 				// 显示执行命令后的信息
 				InputStream stdout = new StreamGobbler(sess.getStdout());
 				@SuppressWarnings("resource")
 				BufferedReader reader = new BufferedReader(new InputStreamReader(stdout));
-				while (true) {
+				StringBuffer buffer = new StringBuffer();
+				while(true) {
 					String line = reader.readLine();
 					if (line == null) {
 						logger.info("远程服务器返回信息:空");
 						break;
 					}
 					logger.info("远程服务器返回信息:" + line);
-					cmdInfo += line + SEP;
+					buffer.append(line + SEP);		
 				}
-				if(sess.getExitStatus() == 0) {
+				// 返回命令行执行结果
+				cmdInfo = buffer.toString();
+				if(sess.getExitStatus() == null || sess.getExitStatus() == 0) {
 					createNewBranchSucceed = true;
 				}
 				// 获得退出状态
@@ -265,6 +272,20 @@ public class SvnCreateBranchServiceImpl implements SvnCreateBranchService {
 	}
 
 
+	/**
+	 * 通过产品id和批次id查询svn新建分支信息
+	 * @param deptId, batchId
+	 * @return List<SvnCreateBranchInfo>
+	 */
+	@Override
+	public List<SvnCreateBranchInfo> getBranchInfoByDeptIdAndBatchId(Long deptId, Long batchId) {		
+		logger.info("SvnCreateBranchServiceImpl.getBranchInfoByDeptIdAndBatchId() start");
+		List<SvnCreateBranchInfo> svnCreateBranchInfoList = svnCreateBranchDao.getBranchInfoByDeptIdAndBatchId(deptId, batchId);
+		logger.info("SvnCreateBranchServiceImpl.getBranchInfoByDeptIdAndBatchId() end");
+		return svnCreateBranchInfoList;
+	}
+	
+	
 	/**
 	 * 通过svn仓库id、svn新建分支基线、svn需要新建的分支查询svn新建分支信息
 	 * @param svnCreateBranch

@@ -53,9 +53,9 @@ function validateRule() {
 				required : true,
 				equalTo : "#svnServerPassword"
 			},
-			svnConfFilesLocation : {
+/*			svnConfFilesLocation : {
 				required : true
-			},
+			},*/
 			svnRootUserName : {
 				required : true
 			}
@@ -74,9 +74,9 @@ function validateRule() {
 				required : icon + "请再次输入SVN服务器登录口令",
 				equalTo : icon + "两次输入的密码不一致"
 			},
-			svnConfFilesLocation : {
+/*			svnConfFilesLocation : {
 				required : icon + "请输入SVN配置文件临时存放位置"
-			},
+			},*/
 			svnRootUserName : {
 				required : icon + "请输入超级用户的SVN用户名"
 			}

@@ -66,7 +66,7 @@ function validateRule() {
 		},
 		messages : {
 			svnRepoName : {
-				required : icon + "请输入SVN仓库名"
+				required : icon + "请输入SVN产品仓库名"
 			},
 			svnUserName : {
 				required : icon + "请输入SVN用户名"

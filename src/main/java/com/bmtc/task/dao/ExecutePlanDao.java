@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.bmtc.common.utils.Query;
 import com.bmtc.task.domain.ExecutePlan;
@@ -29,9 +30,9 @@ public interface ExecutePlanDao {
 	// 修改执行计划
 	int update(ExecutePlan executePlan);
 	// 删除执行计划
-	int remove(Long id);
+	int remove(@Param("isDeleted")Long isDeleted, @Param("id")Long id);
 	// 批量删除执行计划
-	int batchRemove(Long[] ids);
+	int batchRemove(@Param("isDeleted")Long isDeleted, @Param("ids")Long[] ids);
 	// 通过taskId查询执行计划
 	List<ExecutePlan> getExecutePlanByTaskId(Long taskId);
 	

@@ -10,9 +10,10 @@ function updateScript() {
 	$.ajax({
 		cache : true,
 		type : "POST",
+		async : true, //异步
+		beforeSend : beforeSend, //用于在向服务器发送请求之前执行显示进度条
 		url : "/script/updateScripts",
 		data : $('#signupForm').serialize(),// 你的formid
-		async : false,
 		error : function(request) {
 			parent.layer.alert("保存失败，请联系管理员！");
 		},
@@ -25,8 +26,22 @@ function updateScript() {
 			} else {
 				parent.layer.alert(data.msg);
 			}
-		}
+		},
+		complete : complete
 	});
+}
+function beforeSend(XMLHttpRequest) {
+	// 禁用按钮防止重复提交
+	$("#submit").attr({disabled : "disabled"});
+	// 显示进度条
+	$("#showLoading").append("<div><img src='/img/loading-bar.gif' /><div>");
+}
+
+function complete(XMLHttpRequest, textStatus) {
+	// 取消禁用按钮
+	$("#submit").removeAttr("disabled");
+	// 隐藏进度条
+	$("#showLoading").remove();
 }
 $(validateRule());
 function validateRule() {
@@ -82,7 +97,7 @@ function loadDept( deptId,deptName){
 	$("#deptName").val(deptName);
 	$.ajax({
 		type : "post",
-		url : "/task/getSvnPath",// 获得svn库的树形结构路径
+		url : "/task/getSvnRepoPath",// 获得svn库的树形结构路径
 		data : {
 			'deptId' : deptId
 		},

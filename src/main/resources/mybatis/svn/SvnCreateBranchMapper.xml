@@ -62,6 +62,21 @@
 		where b.svn_repo_name = #{svnRepoName}
 	</select>
 	
+	<select id="getBranchInfoByDeptIdAndBatchId" resultType="com.bmtc.svn.domain.SvnCreateBranchInfo" >
+		select
+		a.id, a.dept_id, a.dept_name, a.batch_id, a.batch_name, a.svn_repo_id, a.svn_trunk, a.new_branch, 
+		a.create_branch_comment, a.create_date, a.modify_date,
+    	b.svn_repo_name, b.svn_repo_path, b.svn_repo_url, b.svn_repo_des
+		from 
+			svn_create_branch a join svn_repo b on (a.svn_repo_id = b.svn_repo_id)
+		<where>
+			<if test="deptId != null">
+			 	and a.dept_id = #{deptId} </if>
+			<if test="batchId != null"> 
+				and a.batch_id = #{batchId} </if>
+		</where>
+	</select>
+	
 	<select id="querySvnCreateBranchInfo" resultType="com.bmtc.svn.domain.SvnCreateBranchInfo" 
 		parameterType="com.bmtc.svn.domain.SvnCreateBranch">
 		select
@@ -108,7 +123,7 @@
 				order by ${sort} ${order}
 			</when>
 			<otherwise>
-				order by a.id
+				order by a.id desc
 			</otherwise>
 		</choose>
 		<if test="offset != null and limit != null">

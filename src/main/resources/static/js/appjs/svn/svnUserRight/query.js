@@ -38,7 +38,8 @@ function load(svnRepoName) {
 						offset : params.offset,
 						svnUserName: $('#searchSvnUserName').val(),
 						svnPath: $('#searchSvnPath').val(),
-						svnRepoName : svnRepoName
+						svnRepoName : svnRepoName,
+						name : $('#searchName').val()
 					};
 				},
 				// //请求服务器数据时，你可以通过重写参数的方式添加一些额外的参数，例如 toolbar中的参数 如果
@@ -53,22 +54,22 @@ function load(svnRepoName) {
 					},*/
 					{
 						field : 'svnRepoId', // 列字段名
-						title : 'SVN仓库序号', // 列标题
+						title : 'SVN产品仓库序号', // 列标题
 						align : 'center'
 					},
 					{
 						field : 'svnRepoName',
-						title : 'SVN仓库名',
+						title : 'SVN产品仓库名',
 						align : 'center'
 					},
 					{
 						field : 'svnRepoPath',
-						title : 'SVN仓库路径',
+						title : 'SVN产品仓库路径',
 						align : 'center'
 					},
 					{
 						field : 'svnRepoUrl',
-						title : 'SVN仓库URL',
+						title : 'SVN产品仓库URL',
 						align : 'center'
 					},
 					{
@@ -88,7 +89,7 @@ function load(svnRepoName) {
 					},
 					{
 						field : 'svnUserAuthz',
-						title : 'SVN用户权限',
+						title : 'SVN权限',
 						align : 'center'
 					},
 					{
@@ -99,7 +100,7 @@ function load(svnRepoName) {
 								+ row.svnRepoName
 								+ '\')"><i class="fa fa-edit"></i></a> ';*/
 							var h = '<a  class="btn btn-primary btn-sm ' + s_passTest_h + '" href="#" mce_href="#" title="测试SVN用户权限联通性" onclick="passTest(\''
-								+ row.svnUserName + '\'' + ',' + '\''+ row.svnRepoName + '\'' + ',' + '\'' + row.svnUserAuthz
+								+ row.name + '\'' + ',' + '\'' + row.svnUserName + '\'' + ',' + '\''+ row.svnRepoName + '\'' + ',' + '\'' + row.svnUserAuthz
 								+ '\'' + ',' + '\'' + row.svnPath
 								+ '\')"><i class="fa fa-anchor"></i></a> ';
 							return h;
@@ -124,14 +125,14 @@ function reLoad() {
 	});
 }*/
 
-function passTest(svnUserName, svnRepoName, svnUserAuthz, svnPath) {
+function passTest(name, svnUserName, svnRepoName, svnUserAuthz, svnPath) {
 	layer.open({
 		type : 2,
 		title : '测试SVN用户权限联通性',
 		maxmin : true,
 		shadeClose : false, // 点击遮罩关闭层
-		area : [ '800px', '450px' ],
-		content : prefix + '/passTest/' + svnUserName + '/' + svnRepoName + '/' + svnUserAuthz + '/' + svnPath
+		area : [ '800px', '500px' ],
+		content : prefix + '/passTest/' + name + '/' + svnUserName + '/' + svnRepoName + '/' + svnUserAuthz + '/' + svnPath
 	});
 }
 

@@ -62,6 +62,7 @@ public class ExecutePlanController extends BaseController{
 		logger.info("ExecutePlanController.list() start");
 		// 分页查询参数数据
 		Query query = new Query(params);
+		params.put("isDeleted", 1l);
 		// 查询数据库执行计划数据
 		List<ExecutePlan> executePlans = executePlanService.list(query);
 		// 查询总记录数
@@ -89,6 +90,20 @@ public class ExecutePlanController extends BaseController{
 		return result;
 	}
 	/**
+	 * 执行计划上送给ATP
+	 * @param params
+	 * @return String
+	 */
+//	@RequiresPermissions("test:executePlan:executePlan")
+//	@PostMapping("/sendToATP")
+//	@ResponseBody
+//	String sendToATP(Long id) {
+//		logger.info("ExecutePlanController.sendToATP() start");
+//		String result = executePlanService.sendToATP(id);
+//		logger.info("ExecutePlanController.sendToATP() end");
+//		return result;
+//	}
+	/**
 	 * 前段请求访问执行计划添加页面
 	 * @param 
 	 * @return String
@@ -111,12 +126,18 @@ public class ExecutePlanController extends BaseController{
 	@ResponseBody
 	R save(ExecutePlan executePlan) {
 		logger.info("ExecutePlanController.save() start");
-		if (executePlanService.save(executePlan) > 0) {
+		R save = executePlanService.save(executePlan);
+		Integer code = (Integer) save.get("code");
+		if (code == 0) { // 0,成功
 			logger.info("ExecutePlanController.save() end");
-			return R.ok();
+			return R.ok(save.get("msg").toString());
+		}
+		if (code == 2) {// 2 部分案例caseNum有误
+			logger.info("ExecutePlanController.update() end");
+			return R.error(2,save.get("msg").toString());
 		}
 		logger.info("ExecutePlanController.save() end");
-		return R.error();
+		return R.error(save.get("msg").toString());
 	}
 	/**
 	 * 执行计划edit页面跳转
@@ -142,12 +163,9 @@ public class ExecutePlanController extends BaseController{
 	@ResponseBody
 	R update(ExecutePlan executePlan) {
 		logger.info("ExecutePlanController.update() start");
-		if (executePlanService.update(executePlan) > 0) {
-			logger.info("ExecutePlanController.update() end");
-			return R.ok();
-		}
+		R update = executePlanService.update(executePlan);
 		logger.info("ExecutePlanController.update() end");
-		return R.error();
+		return update;
 	}
 	/**
 	 * 执行计划删除

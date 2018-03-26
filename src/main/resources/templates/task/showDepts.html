@@ -9,22 +9,18 @@
 
 		<div class="row">
 			<div class="col-sm-12">
-
+				<form id="searchProduct">
+					<input type="search" id="productName" style="width:70%" class="bmtcSvnPathSearch-control"
+							   placeholder="产品名称"/>
+					<button type="submit" class="btn btn-success" style="width:60px">搜索</button>
+				</form>	
 				<div class="ibox-content">
 					<div id="deptTree"></div>
-				</div>
-				<div class="form-group ">
-					<div class="col-sm-12 col-sm-offset-12">
-						<button type="button" class="btn btn-primary" onclick="setProductIds()" >提交</button>
-					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 	<div th:include="include :: footer"></div>
-
-
-
 	<script type="text/javascript">
 		$(document).ready(function() {
 			getTreeData()
@@ -44,6 +40,10 @@
 					'data' : tree
 				},
 				"plugins" : [ "search" ]
+			});
+			$("#searchProduct").submit(function (e) {
+				e.preventDefault();
+				$("#deptTree").jstree(true).search($("#productName").val());
 			});
 			$('#deptTree').jstree().open_all();
 		}

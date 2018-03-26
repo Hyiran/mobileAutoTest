@@ -11,7 +11,7 @@ function load(deptId) {
 			{
 				method : 'get', // 服务器数据的请求方式 get or post
 				url : prefix + "/list", // 服务器数据的加载地址
-				// showRefresh : true,
+				showRefresh : true,
 				// showToggle : true,
 				// showColumns : true,
 				iconSize : 'outline',
@@ -92,7 +92,37 @@ function update(pId) {
 	$.ajax({
 		type : "POST",
 		url : "/system/sysDept/save",
+		beforeSend : beforeSend, //用于在向服务器发送请求之前执行显示进度条
+		async : true, //异步
+		error : function(request) {
+			parent.layer.alert("Connection error");
+		},
+		success : function(data) {
+			if (data.code == 0) {
+				parent.layer.msg("操作成功");
+				reLoad();
+				var index = parent.layer.getFrameIndex(window.name); // 获取窗口索引
+				parent.layer.close(index);
+			} else {
+				parent.layer.alert(data.msg);
+			}
+		},
+		complete : complete
 	});
+}
+
+function beforeSend(XMLHttpRequest) {
+	// 禁用按钮防止重复提交
+	$("#submit").attr({disabled : "disabled"});
+	// 显示进度条
+	$("#showLoading").append("<div><img src='/img/loading-bar.gif' /><div>");
+}
+
+function complete(XMLHttpRequest, textStatus) {
+	// 取消禁用按钮
+	$("#submit").removeAttr("disabled");
+	// 隐藏进度条
+	$("#showLoading").remove();
 }
 /*function add() {
 	// iframe层

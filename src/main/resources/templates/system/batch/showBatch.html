@@ -6,6 +6,11 @@
 	<div class="wrapper wrapper-content ">
 		<div class="row">
 			<div class="col-sm-12">
+				<form id="searchBatch">
+					<input type="search" id="batchName" style="width:70%" class="bmtcSvnPathSearch-control"
+							   placeholder="批次名称"/>
+					<button type="submit" class="btn btn-success" style="width:60px">搜索</button>
+				</form>	
 				<div class="ibox-content">
 					<div id="jsTree"></div>
 				</div>
@@ -31,6 +36,11 @@
 				'core' : {
 					'data' : tree
 				},
+				"plugins" : [ "search" ]
+			});
+			$("#searchBatch").submit(function (e) {
+				e.preventDefault();
+				$("#jsTree").jstree(true).search($("#batchName").val());
 			});
 			$('#jsTree').jstree().open_all();
 			

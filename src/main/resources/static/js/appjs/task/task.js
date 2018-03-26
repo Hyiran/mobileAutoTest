@@ -144,7 +144,7 @@ function remove(id) {
 					layer.msg(r.msg);
 					reLoad();
 				} else {
-					layer.msg(r.msg);
+					layer.alert(r.msg);
 				}
 			}
 		});
@@ -187,7 +187,7 @@ function batchRemove() {
 					layer.msg(r.msg);
 					reLoad();
 				} else {
-					layer.msg(r.msg);
+					layer.alert(r.msg);
 				}
 			}
 		});

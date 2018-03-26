@@ -50,10 +50,10 @@ function load() {
 									field : 'remark',
 									title : '备注'
 								},
-								{
+								/*{
 									field : '',
 									title : '权限'
-								},
+								},*/
 								{
 									title : '操作',
 									field : 'roleId',

@@ -85,7 +85,8 @@ public class ShiroConfig {
 		filterChainDefinitionMap.put("/svn/svnUser/**", "anon");
 		filterChainDefinitionMap.put("/svnUserRight/**", "anon");
 		filterChainDefinitionMap.put("/svn/svnUserRight/**", "anon");
-		filterChainDefinitionMap.put("/svn/svnConfDiff/**", "anon");*/
+		filterChainDefinitionMap.put("/svn/svnConfDiff/**", "anon");
+		filterChainDefinitionMap.put("/svn/admin/**", "anon"); */
 		filterChainDefinitionMap.put("/updateLocalCodeBySvnRepo", "anon");
 		filterChainDefinitionMap.put("/logout", "logout");
 		filterChainDefinitionMap.put("/", "anon");

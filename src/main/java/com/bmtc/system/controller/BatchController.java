@@ -75,7 +75,7 @@ public class BatchController extends BaseController {
 
 	@GetMapping("/edit/{id}")
 	@Log("编辑批次")
-	String edit(@PathVariable("id") Integer id, Model model) {
+	String edit(@PathVariable("id") Long id, Model model) {
 		logger.info("BatchController.edit() start");
 		BatchDO batchDO = batchService.get(id);
 		model.addAttribute("batch", batchDO);

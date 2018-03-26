@@ -6,6 +6,12 @@ package com.bmtc.svn.domain;
  *
  */
 public class SvnInfo {
+	
+	/**
+	 * 用户真实姓名
+	 */
+	private String name;
+	
 	/**
 	 * svn用户名
 	 */
@@ -97,21 +103,28 @@ public class SvnInfo {
 		this.svnUserAuthz = svnUserAuthz;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	@Override
 	public String toString() {
-		return "SvnInfo [svnUserName=" + svnUserName + ", svnRepoName="
-				+ svnRepoName + ", svnRepoPath=" + svnRepoPath
-				+ ", svnRepoUrl=" + svnRepoUrl + ", svnRepoDes=" + svnRepoDes
-				+ ", svnPath=" + svnPath + ", svnUserAuthz=" + svnUserAuthz
-				+ "]";
+		return "SvnInfo [name=" + name + ", svnUserName=" + svnUserName
+				+ ", svnRepoName=" + svnRepoName + ", svnRepoPath="
+				+ svnRepoPath + ", svnRepoUrl=" + svnRepoUrl + ", svnRepoDes="
+				+ svnRepoDes + ", svnPath=" + svnPath + ", svnUserAuthz="
+				+ svnUserAuthz + "]";
 	}
 
-	
-	public SvnInfo(String svnUserName, String svnRepoName, String svnRepoPath,
-			String svnRepoUrl, String svnRepoDes, String svnPath,
-			String svnUserAuthz) {
+	public SvnInfo(String name, String svnUserName, String svnRepoName,
+			String svnRepoPath, String svnRepoUrl, String svnRepoDes,
+			String svnPath, String svnUserAuthz) {
 		super();
+		this.name = name;
 		this.svnUserName = svnUserName;
 		this.svnRepoName = svnRepoName;
 		this.svnRepoPath = svnRepoPath;

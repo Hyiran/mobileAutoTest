@@ -33,6 +33,9 @@ public interface SvnCreateBranchService {
 	// 通过svn仓库名查询svn新建分支信息
 	SvnCreateBranchInfo getSvnCreateBranchInfo(String svnRepoName);
 	
+	// 通过产品id和批次id查询svn新建分支信息
+	List<SvnCreateBranchInfo> getBranchInfoByDeptIdAndBatchId(Long deptId, Long batchId);
+	
 	// 通过svn仓库id、svn新建分支基线、svn需要新建的分支查询svn新建分支信息
 	SvnCreateBranchInfo querySvnCreateBranchInfo(SvnCreateBranch svnCreateBranch);
 	

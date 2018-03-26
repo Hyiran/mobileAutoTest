@@ -2,17 +2,23 @@
 <html>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="edge"/> 
-<head th:include="include :: header"></head>
-<body class="gray-bg">
-	<div class="wrapper wrapper-content ">
+<head>
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="/css/animate.css" rel="stylesheet">
+   <link href="/css/style.css" rel="stylesheet"> 
+    <link href="/css/register.css" rel="stylesheet">
+</head>
+<body class="signin">
+	<div class="signinpanel">
 		<div class="row">
-			<div class="col-sm-12">
+			<div class="col-sm-8">
 				<div class="ibox float-e-margins">
-					<div class="ibox-content">
-						<form class="form-horizontal m-t" id="signupForm">
+					<div class="iboxes-content">
+						<form class="form-horizontal m-t" style="background-color:#FFF5EE;" id="signupForm">
 							<input id="userId" name="userId" type="hidden">
 							<div class="form-group">
-								<label class="col-sm-3 control-label">姓名：</label>
+								<label class="col-sm-3 control-label" >姓名：</label>
 								<div class="col-sm-6">
 									<input id="name" name="name" class="form-control" type="text">
 								</div>
@@ -23,7 +29,11 @@
 									<input id="username" name="username" class="form-control"
 										type="text">
 								</div>
-								<span style="color:red">(自有人员请用域名注册,外员请用姓名全拼注册)</span>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-6" class="text-center">
+									<span class="m-t-md text-center" style="color:red">(自有人员请用域名注册,外员请用姓名全拼注册)</span>
+								</div>
 							</div>
 							<div class="form-group">
 								<label class="col-sm-3 control-label">密码：</label>
@@ -55,7 +65,7 @@
 								</div>
 							</div>
 						</form>
-					</div>
+					</div> 
 				</div>
 			</div>
 		</div>

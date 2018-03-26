@@ -53,7 +53,13 @@ function validateRule() {
 	var icon = "<i class='fa fa-times-circle'></i> ";
 	$("#svnCreateBranchAddForm").validate({
 		rules : {
+			deptName : {
+				required : true
+			},
 			svnRepoName : {
+				required : true
+			},
+			batchName : {
 				required : true
 			},
 			svnTrunk : {
@@ -62,23 +68,34 @@ function validateRule() {
 			},
 			newBranch : {
 				required : true,
-				isNewBranchSvnUrl : true,
-				equalToSvnTrunk : true
+				checkNewBranch : true,
+				notEqualToSvnTrunk : true
 			},
 			createBranchComment : {
+				required : true,
 				checkCreateBranchComment : true
 			}
 		},
 		messages : {
+			deptName : {
+				required : icon + "请输入所属产品名称"
+			},
 			svnRepoName : {
-				required : icon + "请输入SVN仓库名称"
+				required : icon + "请输入SVN产品仓库名称"
+			},
+			batchName : {
+				required : icon + "请输入所属批次名称"
 			},
 			svnTrunk : {
-				required : icon + "请输入需要新建SVN分支的基线URL(eg. svn://22.11.31.51/test/trunk)"
+				required : icon + "请输入需要新建SVN批次分支的基线URL(eg. svn://22.11.31.51/test/trunk)"
 			},
 			newBranch : {
-				required : icon + "请输入SVN需要新建的分支URL(eg. svn://22.11.31.51/test/branch)",
-				equalToSvnTrunk : icon + "请输入与SVN基线同仓库的分支URL"
+				required : icon + "请输入SVN需要新建的批次分支URL(eg. svn://22.11.31.51/test/branch)"
+/*				checkNewBranch : icon + "请输入与SVN基线同仓库的分支URL",
+				notEqualToSvnTrunk : icon + "请完善SVN需要新建的批次分支URL"*/
+			},
+			createBranchComment : {
+				required : icon + "请输入SVN批次新分支的备注信息"
 			}
 		}
 	});
@@ -88,7 +105,7 @@ function validateRule() {
 $.validator.addMethod("checkCreateBranchComment",function(value,element){
 	var checkCreateBranchComment = /^[0-9a-zA-Z_ ]+$/;
 	return this.optional(element) || (checkCreateBranchComment.test(value));
-},"SVN新建分支备注信息只能由大小写字母、数字、下划线、空格组成");
+},"SVN新建批次分支备注信息只能由大小写字母、数字、下划线、空格组成");
 
 
 //校验svn基线的url
@@ -98,15 +115,15 @@ $.validator.addMethod("isSvnTrunk",function(value,element){
 },"请填写正确的SVN的URL(eg. svn://22.11.31.40/BMTC/trunk)");
 
 
-//校验新建分支的svnUrl
+/*//校验新建分支的svnUrl
 $.validator.addMethod("isNewBranchSvnUrl",function(value,element){
 	var isNewBranchSvnUrl = /(^svn):\/\/+\d+\.\d+\.\d+\.\d+\/[A-Za-z0-9_]/;//以svn://开头
 	return this.optional(element) || (isNewBranchSvnUrl.test(value));
-},"请填写与SVN基线同仓库的SVNURL(eg. svn://22.11.31.40/BMTC/branch)");
+},"请填写与SVN基线同仓库的SVNURL(eg. svn://22.11.31.40/BMTC/branch)");*/
 
 
 //校验新建分支的svnUrl与基线svnUrl是否属于同一个svn仓库
-$.validator.addMethod("equalToSvnTrunk",function(){
+$.validator.addMethod("checkNewBranch",function(){
 	var svnTrunk = $('#svnTrunk').val();
 	var newBranch = $('#newBranch').val();
 	var svnTrunkTemp = [];
@@ -137,11 +154,19 @@ $.validator.addMethod("equalToSvnTrunk",function(){
 },"请填写与SVN基线同仓库的SVNURL(eg. svn://22.11.31.40/BMTC/branch)");
 
 
+//校验新建分支的svnUrl与基线svnUrl是否是同一个svn url
+$.validator.addMethod("notEqualToSvnTrunk",function(){
+	var svnTrunk = $('#svnTrunk').val();
+	var newBranch = $('#newBranch').val();
+	if(svnTrunk != newBranch) return true;
+	else return false;
+},"SVN基线与批次新分支URL不能相同，请完善SVN需要新建的批次分支URL");
+
 
 var openSvnRepo = function() {
 	layer.open({
 		type:2,
-		title:"选择SVN仓库",
+		title:"选择SVN产品仓库",
 		area : [ '300px', '450px' ],
 		content:"/svn/svnCreateBranch/svnRepoTreeView"
 	});
@@ -154,10 +179,10 @@ function loadSvnRepo(svnRepoId, svnRepoName) {
 
 function openSvnTrunk() {
 	var svnRepoName = $('#svnRepoName').val();
-	if(svnRepoName == null || svnRepoName == "") {layer.alert('请先选择SVN仓库！');}
+	if(svnRepoName == null || svnRepoName == "") {layer.alert('请先选择SVN产品仓库！');}
 	layer.open({
 		type:2,
-		title: "请选择需要新建分支的基线SVN URL(SVN树形结构解析时间较长，请耐心等待...)",
+		title: "请选择需要新建批次分支的基线SVN URL(SVN树形结构解析时间较长，请耐心等待...)",
 		area : [ '700px', '650px' ],
 		content: "/svn/svnCreateBranch/svnTrunkTreeView/" + svnRepoName
 	});
@@ -165,6 +190,7 @@ function openSvnTrunk() {
 
 function loadSvnTrunk(svnTrunk) {
 	$("#svnTrunk").val(svnTrunk);
+	$("#newBranch").val(svnTrunk);
 }
 
 function openDept() {
@@ -184,7 +210,7 @@ var openBatch = function() {
 	layer.open({
 		type:2,
 		title:"请选择批次",
-		closeBtn : 0,
+		// closeBtn : 0, //隐藏删除按钮
 		area : [ '300px', '450px' ],
 		content:"/svn/svnCreateBranch/showBatch"
 	});

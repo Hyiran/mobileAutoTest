@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <head th:include="include :: header"></head>
 <body class="gray-bg">
-	<div class="wrapper wrapper-content ">
+	<div class="wrapper wrapper-content animated fadeInRight">
 		<div class="row">
 			<div class="col-sm-12">
 				<form id="searchBatch">
@@ -21,7 +21,7 @@
 	<div th:include="include :: footer"></div>
 	<script type="text/javascript">
 		$(document).ready(function() {
-			getTreeData();
+			getTreeData()
 		});
 		function getTreeData() {
 			$.ajax({

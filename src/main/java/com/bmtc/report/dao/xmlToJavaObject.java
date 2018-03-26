@@ -34,14 +34,18 @@ public class xmlToJavaObject {
 	 */
 	public static String xmlToJsonString(String inputFilePath) throws IOException, JSONException {
 		logger.info("xmlToJavaObject.xmlToJsonString() start");
+		//读取xml文件
 		File file = new File(inputFilePath);
+		//读入文件流
 		InputStream in = null;
 		try {
 
 			in = new FileInputStream(file);
 		} catch (Exception e) {
 		}
+		//将文件流转换为字符串类型
 		String xml = IOUtils.toString(in);
+		//将xml转换为json 类型
 		Object xmlJSONObj = XML.toJSONObject(xml);
 		logger.info("xmlToJavaObject.xmlToJsonString() end");
 		return xmlJSONObj.toString();
@@ -65,10 +69,16 @@ public class xmlToJavaObject {
 		JSONObject suite = robot.getJSONObject("suite");
 		Object testobj = null;
 		if (suite.has("suite")) {
-			testobj =suite.getJSONObject("suite").getJSONObject("test") ;
+			while (suite.has("suite")) {
+				suite =suite.getJSONObject("suite");
+				if (!suite.has("suite")) {
+					testobj =suite.getJSONObject("test");
+				}
+			}
 		}else{
-		testobj = suite.get("test");
+			testobj =suite.getJSONObject("test");
 		}
+		
 		List<Test> tests = new ArrayList<Test>();
 		if (testobj instanceof JSONArray) {
 			JSONArray testArray = (JSONArray) testobj;

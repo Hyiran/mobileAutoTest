@@ -83,7 +83,7 @@ function validateRule() {
 			username : {
 				required : icon + "请输入您的用户名",
 				minlength : icon + "用户名必须两个字符以上",
-				remote : icon + "用户名已经存在,如果为待审批状态请联系管理员"
+				remote : icon + "用户名已经存在,如果长时间为待审批状态请联系管理员"
 			},
 			password : {
 				required : icon + "请输入您的密码",

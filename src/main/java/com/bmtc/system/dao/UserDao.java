@@ -14,25 +14,25 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface UserDao {
 	
-	//Í¨¹ıÓÃ»§id»ñÈ¡ÓÃ»§¶ÔÏó
+	//é€šè¿‡ç”¨æˆ·idè·å–ç”¨æˆ·å¯¹è±¡
 	UserDO get(Long userId);
 	
-	//»ñÈ¡ËùÓĞÓÃ»§ĞÅÏ¢
+	//è·å–æ‰€æœ‰ç”¨æˆ·ä¿¡æ¯
 	List<UserDO> list(Map<String,Object> map);
 	
-	//Í³¼ÆÓÃ»§¸öÊı
+	//ç»Ÿè®¡ç”¨æˆ·ä¸ªæ•°
 	int count(Map<String,Object> map);
 	
-	//±£´æÓÃ»§
+	//ä¿å­˜ç”¨æˆ·
 	int save(UserDO user);
 	
-	//¸üĞÂÓÃ»§
+	//æ›´æ–°ç”¨æˆ·
 	int update(UserDO user);
 	
-	//Í¨¹ıÓÃ»§idÒÆ³ıÓÃ»§
+	//é€šè¿‡ç”¨æˆ·idç§»é™¤ç”¨æˆ·
 	int remove(Long userId);
 	
-	//ÅúÁ¿ÒÆ³ıÓÃ»§
+	//æ‰¹é‡ç§»é™¤ç”¨æˆ·
 	int batchRemove(Long[] userIds);
 	
 	

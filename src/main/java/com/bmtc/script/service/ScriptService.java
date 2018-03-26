@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.bmtc.common.domain.Tree;
 import com.bmtc.common.utils.Query;
+import com.bmtc.common.utils.R;
 import com.bmtc.script.domain.Script;
 import com.bmtc.system.domain.DeptDO;
 
@@ -19,7 +20,7 @@ public interface ScriptService {
 	// 查询总记录数
 	int count(Query query);
 	// 更新数据库脚本信息
-	boolean updateScriptData(DeptDO DeptDO);
+	R updateScriptData(DeptDO DeptDO);
 	// 通过id查询脚本信息
 	Script get(Long scriptId);
 	// 获得脚本的树形结构数据

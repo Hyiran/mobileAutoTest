@@ -69,7 +69,7 @@ function validateRule() {
 		},
 		messages : {
 			svnRepoName : {
-				required : icon + "请输入SVN仓库名"
+				required : icon + "请输入SVN产品仓库名"
 			},
 			svnUserName : {
 				required : icon + "请输入SVN用户名"
@@ -90,7 +90,7 @@ function validateRule() {
 var openSvnRepo = function() {
 	layer.open({
 		type:2,
-		title:"选择SVN仓库",
+		title:"选择SVN产品仓库",
 		area : [ '300px', '450px' ],
 		content:"/svn/svnRepo/treeView"
 	});

@@ -3,6 +3,8 @@ package com.bmtc.device.utils;
 import java.util.LinkedList;
 import java.util.List;
 
+
+
 import com.bmtc.common.exception.BDException;
 import com.bmtc.device.domain.Robot;
 
@@ -13,22 +15,33 @@ import com.bmtc.device.domain.Robot;
  */
 public class RobotUtils {
 
-	public static List<String> buildParamForAndroid(Robot robot) {
+	//rf bin路径
+	private String pybot;
+	public RobotUtils(String pybot){
+		this.pybot = pybot;
+	}
+	
+	public List<String> buildRobotParam(Robot robot) {
 		List<String> cmds = new LinkedList<String>();
-		String pybot = PropertiesUtils.getPybot();
 
-		String log = robot.getLog();
 		String url = robot.getUrl();
+		String platformName = robot.getPlatformName();
 		String udid = robot.getUdid();
 		String version = robot.getVerison();
 		int systemPort = robot.getSystemPort();
-		String testCase = robot.getCaseName();
-		String testSuite = robot.getTestSuite();
-
+		int wdaLocalPort = robot.getWdaLocalPort();
+		List<String> caseNames = robot.getCaseNames();
+		List<String> suiteNames = robot.getSuiteNames();
+		List<String> tags = robot.getTagNames();
+		String scriptPath = robot.getScriptPath();
+		String log = robot.getLog();
 		
-		cmds.add("cmd");
-		cmds.add("/c");
-		cmds.add(pybot);
+		String sys = System.getProperty("os.name");
+		if (sys.toLowerCase().startsWith("win")) {
+			cmds.add("cmd");
+			cmds.add("/c");
+		}
+		cmds.add(this.pybot);
 		
 		if (log != null && log != "") {
 			cmds.add("-d");
@@ -50,40 +63,66 @@ public class RobotUtils {
 			cmds.add("platformVersion:"+version);
 		}
 
-		if (systemPort != -1) {
-			cmds.add("-v");
-			cmds.add("systemPort:"+systemPort);
+		if ("android".equals(platformName.toLowerCase())) {
+			if (systemPort != -1) {
+				cmds.add("-v");
+				cmds.add("systemPort:"+systemPort);
+			}
+		}
+		if ("ios".equals(platformName.toLowerCase())) {
+			if (wdaLocalPort != -1) {
+				cmds.add("-v");
+				cmds.add("wdaLocalPort:"+ wdaLocalPort);
+			}
+		}
+		
+
+		if (caseNames != null) {
+			for (String caseName : caseNames) {
+				cmds.add("-t");
+				cmds.add(caseName);
+			}
 		}
 
-		if (testCase != null && testCase != "") {
-			cmds.add("-t");
-			cmds.add(testCase);
+		if (suiteNames != null) {
+			for (String suiteName : suiteNames) {
+				cmds.add("-s");
+				cmds.add(suiteName);
+			}
+		}
+		
+		if (tags != null) {
+			for (String tag : tags) {
+				cmds.add("-i");
+				cmds.add(tag);
+			}
 		}
 
-		if (testSuite == null  || testSuite =="") {
+		if (scriptPath == "") {
 			throw new BDException("testSuite 不能为空");
 		}
-		cmds.add(testSuite);
-
+		
+		cmds.add(scriptPath);
+		
 		return cmds;
 	}
 	
-	public static List<String> buildParamForIOS(Robot robot) {
+	public List<String> buildParamForIOS(Robot robot) {
 		List<String> cmds = new LinkedList<String>();
-		String pybot = PropertiesUtils.getPybot();
 
 		String log = robot.getLog();
 		String url = robot.getUrl();
 		String udid = robot.getUdid();
 		String version = robot.getVerison();
 		int wdaLocalPort = robot.getWdaLocalPort();
-		String testCase = robot.getCaseName();
-		String testSuite = robot.getTestSuite();
-
+		List<String> caseNames = robot.getCaseNames();
+		List<String> suiteNames = robot.getSuiteNames();
+		List<String> tags = robot.getTagNames();
+		String scriptPath = robot.getScriptPath();
 		
 		cmds.add("cmd");
 		cmds.add("/c");
-		cmds.add(pybot);
+		cmds.add(this.pybot);
 		
 		if (log != null && log != "") {
 			cmds.add("-d");
@@ -110,15 +149,32 @@ public class RobotUtils {
 			cmds.add("wdaLocalPort:"+ wdaLocalPort);
 		}
 
-		if (testCase != null && testCase != "") {
-			cmds.add("-t");
-			cmds.add(testCase);
+		if (caseNames != null) {
+			for (String caseName : caseNames) {
+				cmds.add("-t");
+				cmds.add(caseName);
+			}
 		}
 
-		if (testSuite.equals("")) {
+		if (suiteNames != null) {
+			for (String suiteName : suiteNames) {
+				cmds.add("-s");
+				cmds.add(suiteName);
+			}
+		}
+		
+		if (tags != null) {
+			for (String tag : tags) {
+				cmds.add("-i");
+				cmds.add(tag);
+			}
+		}
+
+		if (scriptPath == "") {
 			throw new BDException("testSuite 不能为空");
 		}
-		cmds.add(testSuite);
+		
+		cmds.add(scriptPath);
 
 		return cmds;
 	}

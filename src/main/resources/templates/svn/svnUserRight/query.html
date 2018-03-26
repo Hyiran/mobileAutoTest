@@ -9,11 +9,11 @@
 			<div class="col-sm-2">
 				<div class="ibox ibox-body">
 					<div class="ibox-title">
-						<h5>选择SVN仓库</h5>
+						<h5>选择SVN产品仓库</h5>
 					</div>
 					<form id="searchRepo">
 						<input type="search" id="svnRepoName" class="bmtcRepoSearch-control"
-							   placeholder="SVN仓库名"/>
+							   placeholder="SVN产品仓库名"/>
 						<button type="submit" class="btn btn-success">搜索</button>
 					</form>
 					<div class="ibox-content">
@@ -27,14 +27,18 @@
 						<div class="fixed-table-toolbar">
 							<div class="columns pull-right">
 								<button class="btn btn-success" onclick="reLoad()">查询</button>
-							</div>				
+							</div>
+							<div class="columns pull-right col-md-2 nopadding">
+								<input id="searchSvnPath" type="text" class="form-control"
+									placeholder="SVN权限路径">
+							</div>
 							<div class="columns pull-right col-md-2 nopadding">
 								<input id="searchSvnUserName" type="text" class="form-control"
 									placeholder="SVN用户名">
 							</div>
 							<div class="columns pull-right col-md-2 nopadding">
-								<input id="searchSvnPath" type="text" class="form-control"
-									placeholder="SVN权限路径">
+								<input id="searchName" type="text" class="form-control"
+									placeholder="用户姓名">
 							</div>
 						</div>
 						<table id="svnUserRightQueryTable" data-mobile-responsive="true">

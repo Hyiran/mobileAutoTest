@@ -21,7 +21,7 @@ import com.bmtc.svn.service.UpdateLocalCodeBySvnRepoService;
 
 
 /**
- * SVN用户信息管理业务逻辑实现
+ * SVN管理业务逻辑实现
  * @author lpf7161
  *
  */
@@ -51,12 +51,14 @@ public class UpdateLocalCodeBySvnRepoServiceImpl implements UpdateLocalCodeBySvn
 			clientManager = this.connectSvnRepos(url, userName, password);
 		} catch (SVNException e) {
 			logger.error(e.getMessage());
+			return -1;
 		}*/
 		
 		try { 
 			clientManager = SVNUtil.authSvn(url, userName, password);
 		} catch (SVNException e) {
 			logger.error(e.getMessage());
+			return -1;
 		}
 		
 		SVNUpdateClient updateClient = clientManager.getUpdateClient();
@@ -71,16 +73,14 @@ public class UpdateLocalCodeBySvnRepoServiceImpl implements UpdateLocalCodeBySvn
 			if (!SVNWCUtil.isVersionedDirectory(wcPath)) {
 				logger.info("SvnRepoServiceImpl.updateLocalCodeBySvnRepo() end");
 				return this.checkout(clientManager, SVNURL.parseURIEncoded(url), SVNRevision.HEAD, wcPath, depth);
-			}
-			else {
+			} else {
 				logger.info("SvnRepoServiceImpl.updateLocalCodeBySvnRepo() end");
 				//从第二次开始就是更新
 				return updateClient.doUpdate(wcPath, SVNRevision.HEAD, depth, false, false);
 			}
-		}
-		catch (SVNException e) {
-			logger.error("更新代码到指定版本:"+e.getMessage());
-			throw new SVNException(e.getErrorMessage());
+		} catch (SVNException e) {
+			logger.error("更新代码到指定版本出错:" + e.getMessage());
+			return -1;
 		}
 	}
 	
@@ -161,8 +161,7 @@ public class UpdateLocalCodeBySvnRepoServiceImpl implements UpdateLocalCodeBySvn
 			logger.info("认证完成");
 			logger.info("updateLocalCodeBySvnRepoServiceImpl.connectSvnRepos() end");
 			return clientManager;
-        } 
-		catch (SVNException e) {
+        } catch (SVNException e) {
 			logger.error("连接svn库：" + e);
 			throw e;
         }
@@ -229,8 +228,7 @@ public class UpdateLocalCodeBySvnRepoServiceImpl implements UpdateLocalCodeBySvn
 		try {
 			logger.info("updateLocalCodeBySvnRepoServiceImpl.checkout() end");
 			return updateClient.doCheckout(url, destPath, revision, revision, depth, false);
-		} 
-		catch (SVNException e) {
+		} catch (SVNException e) {
 			logger.error("checkout:"+e.getMessage());
 			throw new SVNException(e.getErrorMessage());
 		}

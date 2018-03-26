@@ -10,14 +10,30 @@ import java.io.Serializable;
 public class Appium implements Serializable{
 	private static final long serialVersionUID = 4828208058302969506L;
 	
+	//设备udid
+	private String udid;
+	//appium服务host
 	private String host;
+	//服务端口
 	private int port;
+	//chromedriver端口
 	private int chromeDriverPort;
+	//设备服务端口
 	private int bootstrapPort;
+	//uiautomator2 server端口
 	private int systemPort;
-	private int wadLocalPort;
-	
+	//webdriver agent 端口
+	private int wdaLocalPort;
+	//appium log 路径
 	private String appiumLog;
+	
+	public String getUdid() {
+		return udid;
+	}
+
+	public void setUdid(String udid) {
+		this.udid = udid;
+	}
 
 	public int getSystemPort() {
 		return systemPort;
@@ -68,20 +84,20 @@ public class Appium implements Serializable{
 	}
 
 	
-	public int getWadLocalPort() {
-		return wadLocalPort;
+	public int getWdaLocalPort() {
+		return wdaLocalPort;
 	}
 
-	public void setWadLocalPort(int wadLocalPort) {
-		this.wadLocalPort = wadLocalPort;
+	public void setWdaLocalPort(int wdaLocalPort) {
+		this.wdaLocalPort = wdaLocalPort;
 	}
 
 	@Override
 	public String toString() {
-		return "Appium [host=" + host + ", port=" + port
+		return "Appium [udid=" + udid + ", host=" + host + ", port=" + port
 				+ ", chromeDriverPort=" + chromeDriverPort + ", bootstrapPort="
 				+ bootstrapPort + ", systemPort=" + systemPort
-				+ ", wadLocalPort=" + wadLocalPort + ", appiumLog=" + appiumLog
+				+ ", wdaLocalPort=" + wdaLocalPort + ", appiumLog=" + appiumLog
 				+ "]";
 	}
 

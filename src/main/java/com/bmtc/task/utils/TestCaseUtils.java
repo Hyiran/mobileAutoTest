@@ -5,6 +5,9 @@ import java.util.List;
 
 import com.bmtc.device.domain.TestCase;
 import com.bmtc.device.domain.TestCaseTable;
+import com.bmtc.script.domain.Script;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 
 /**
  * 解析前段接收的路径集并封装为testcase的工具类
@@ -28,7 +31,12 @@ public class TestCaseUtils {
 		List<TestCase> testCases = new ArrayList<TestCase>();
 		// 遍历获得关联的脚本信息
 		for (String testSuitePath : testSuitePaths) {
-			
+			/**
+			 * 判断:testSuitePath是否为空
+			 */
+			if(testSuitePath == null || "".equals(testSuitePath)) {
+				continue;
+			}
 			/**
 			 * 判断:不包含“.txt”,下次循环
 			 */
@@ -124,6 +132,27 @@ public class TestCaseUtils {
 		}
 		testCase.setCaseName(caseName);
 		return testCase;
+	}
+	/**
+	 * 封装testCase
+	 * @param String[] testSuitePaths,String testSuitePath
+	 * @return TestCase
+	 */
+	public static List<TestCase> getTestCaseBySuitPath(List<Script> scripts) {
+		List<TestCase> testCases = new ArrayList<TestCase>();
+		TestCase testCase = new TestCase();
+		// 遍历脚本
+		for (Script script : scripts) {
+			String testSuitPath = script.getTestSuitPath();
+			String testCaseInfo = script.getTestCaseInfo();
+			Gson gson = new Gson();
+			List<TestCaseTable> testCaseTables= gson.fromJson(testCaseInfo, new TypeToken<List<TestCaseTable>>(){
+				private static final long serialVersionUID = 1L;}.getType());
+			testCase.setCaseName(testCaseTables);
+			testCase.setTestSuite(testSuitPath);
+			testCases.add(testCase);
+		}
+		return testCases;
 	}
 	
 }

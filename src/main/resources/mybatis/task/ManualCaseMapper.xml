@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bmtc.task.dao.ManualCaseDao">
+
+	<insert id="save" parameterType="com.bmtc.task.domain.ManualCaseDO"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into test_manualcase
+		(
+		`author`,
+		`appurtenentProduce`,
+		`module`,
+		`function`,
+		`subfunction`,
+		`testType`,
+		`caseType`,
+		`priority`,
+		`weight`,
+		`testItem`,
+		`testPoint`,
+		`testCaseNumber`,
+		`systemInitialState`,
+		`testInstructions`,
+		`expectedResult`,
+		`productionTaskNumber`,
+		`testRequirements`,
+		`other`,
+		`tester`,
+		`testRounds`,
+		`scheduledTestDate`,
+		`coreTimePointProperties`,
+		`notFunction`,
+		`specialName`,
+		`customIndex1`,
+		`customIndex2`,
+		`customIndex3`,
+		`customIndex4`,
+		`customIndex5`,
+		`automatedTestScriptName`,
+		`automatedTestExecutionOrder`,
+		`upstreamProducts`,
+		`downstreamProducts`,
+		`batch`,
+		`ifAutomated`,
+		`taskId`
+		)
+		values
+		(
+		#{author},
+		#{appurtenentProduce},
+		#{module},
+		#{function},
+		#{subfunction},
+		#{testType},
+		#{caseType},
+		#{priority},
+		#{weight},
+		#{testItem},
+		#{testPoint},
+		#{testCaseNumber},
+		#{systemInitialState},
+		#{testInstructions},
+		#{expectedResult},
+		#{productionTaskNumber},
+		#{testRequirements},
+		#{other},
+		#{tester},
+		#{testRounds},
+		#{scheduledTestDate},
+		#{coreTimePointProperties},
+		#{notFunction},
+		#{specialName},
+		#{customIndex1},
+		#{customIndex2},
+		#{customIndex3},
+		#{customIndex4},
+		#{customIndex5},
+		#{automatedTestScriptName},
+		#{automatedTestExecutionOrder},
+		#{upstreamProducts},
+		#{downstreamProducts},
+		#{batch},
+		#{ifAutomated},
+		#{taskId}
+		)
+	</insert>
+	
+	<select id="list" resultType="com.bmtc.task.domain.ManualCaseDO">
+		select
+		`id`,
+		`author`,
+		`appurtenentProduce`,
+		`module`,
+		`function`,
+		`subfunction`,
+		`testType`,
+		`caseType`,
+		`priority`,
+		`weight`,
+		`testItem`,
+		`testPoint`,
+		`testCaseNumber`,
+		`systemInitialState`,
+		`testInstructions`,
+		`expectedResult`,
+		`productionTaskNumber`,
+		`testRequirements`,
+		`other`,
+		`tester`,
+		`testRounds`,
+		`scheduledTestDate`,
+		`coreTimePointProperties`,
+		`notFunction`,
+		`specialName`,
+		`customIndex1`,
+		`customIndex2`,
+		`customIndex3`,
+		`customIndex4`,
+		`customIndex5`,
+		`automatedTestScriptName`,
+		`automatedTestExecutionOrder`,
+		`upstreamProducts`,
+		`downstreamProducts`,
+		`batch`,
+		`ifAutomated`,
+		`taskId`
+		from test_manualcase
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="author != null and author != ''"> and author = #{author} </if>
+			<if test="appurtenentProduce != null and appurtenentProduce != ''"> and appurtenentProduce = #{appurtenentProduce} </if>
+			<if test="module != null and module != ''"> and module = #{module} </if>
+			<if test="function != null and function != ''"> and function = #{function} </if>
+			<if test="subfunction != null and subfunction != ''"> and subfunction = #{subfunction} </if>
+			<if test="testType != null and testType != ''"> and testType = #{testType} </if>
+			<if test="caseType != null and caseType != ''"> and caseType = #{caseType} </if>
+			<if test="priority != null and priority != ''"> and priority = #{priority} </if>
+			<if test="weight != null and weight != ''"> and weight = #{weight} </if>
+			<if test="testItem != null and testItem != ''"> and testItem = #{testItem} </if>
+			<if test="testPoint != null and testPoint != ''"> and testPoint = #{testPoint} </if>
+			<if test="testCaseNumber != null and testCaseNumber != ''"> and testCaseNumber = #{testCaseNumber} </if>
+			<if test="systemInitialState != null and systemInitialState != ''"> and systemInitialState = #{systemInitialState} </if>
+			<if test="testInstructions != null and testInstructions != ''"> and testInstructions = #{testInstructions} </if>
+			<if test="expectedResult != null and expectedResult != ''"> and expectedResult = #{expectedResult} </if>
+			<if test="productionTaskNumber != null and productionTaskNumber != ''"> and productionTaskNumber = #{productionTaskNumber} </if>
+			<if test="testRequirements != null and testRequirements != ''"> and testRequirements = #{testRequirements} </if>
+			<if test="other != null and other != ''"> and other = #{other} </if>
+			<if test="tester != null and tester != ''"> and tester = #{tester} </if>
+			<if test="testRounds != null and testRounds != ''"> and testRounds = #{testRounds} </if>
+			<if test="scheduledTestDate != null and scheduledTestDate != ''"> and scheduledTestDate = #{scheduledTestDate} </if>
+			<if test="coreTimePointProperties != null and coreTimePointProperties != ''"> and coreTimePointProperties = #{coreTimePointProperties} </if>
+			<if test="notFunction != null and notFunction != ''"> and notFunction = #{notFunction} </if>
+			<if test="specialName != null and specialName != ''"> and specialName = #{specialName} </if>
+			<if test="customIndex1 != null and customIndex1 != ''"> and customIndex1 = #{customIndex1} </if>
+			<if test="customIndex2 != null and customIndex2 != ''"> and customIndex2 = #{customIndex2} </if>
+			<if test="customIndex3 != null and customIndex3 != ''"> and customIndex3 = #{customIndex3} </if>
+			<if test="customIndex4 != null and customIndex4 != ''"> and customIndex4 = #{customIndex4} </if>
+			<if test="customIndex5 != null and customIndex5 != ''"> and customIndex5 = #{customIndex5} </if>
+			<if test="automatedTestScriptName != null and automatedTestScriptName != ''"> and automatedTestScriptName = #{automatedTestScriptName} </if>
+			<if test="automatedTestExecutionOrder != null and automatedTestExecutionOrder != ''"> and automatedTestExecutionOrder = #{automatedTestExecutionOrder} </if>
+			<if test="upstreamProducts != null and upstreamProducts != ''"> and upstreamProducts = #{upstreamProducts} </if>
+			<if test="downstreamProducts != null and downstreamProducts != ''"> and downstreamProducts = #{downstreamProducts} </if>
+			<if test="batch != null and batch != ''"> and batch = #{batch} </if>
+			<if test="ifAutomated != null and ifAutomated != ''"> and ifAutomated = #{ifAutomated} </if>
+			<if test="taskId != null and taskId != ''"> and taskId = #{taskId} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+	
+	<select id="hasCaseNum" resultType="com.bmtc.task.domain.ManualCaseDO">
+		select
+		`id`,
+		`author`,
+		`appurtenentProduce`,
+		`module`,
+		`function`,
+		`subfunction`,
+		`testType`,
+		`caseType`,
+		`priority`,
+		`weight`,
+		`testItem`,
+		`testPoint`,
+		`testCaseNumber`,
+		`systemInitialState`,
+		`testInstructions`,
+		`expectedResult`,
+		`productionTaskNumber`,
+		`testRequirements`,
+		`other`,
+		`tester`,
+		`testRounds`,
+		`scheduledTestDate`,
+		`coreTimePointProperties`,
+		`notFunction`,
+		`specialName`,
+		`customIndex1`,
+		`customIndex2`,
+		`customIndex3`,
+		`customIndex4`,
+		`customIndex5`,
+		`automatedTestScriptName`,
+		`automatedTestExecutionOrder`,
+		`upstreamProducts`,
+		`downstreamProducts`,
+		`batch`,
+		`ifAutomated`,
+		`taskId`
+		from test_manualcase
+		<where>
+			testCaseNumber = #{testCaseNumber}
+			and taskId = #{taskId}
+		</where>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from test_manualcase
+		<where>
+			<if test="id != null and id != ''"> and id = #{id} </if>
+			<if test="author != null and author != ''"> and author = #{author} </if>
+			<if test="appurtenentProduce != null and appurtenentProduce != ''"> and appurtenentProduce = #{appurtenentProduce} </if>
+			<if test="module != null and module != ''"> and module = #{module} </if>
+			<if test="function != null and function != ''"> and function = #{function} </if>
+			<if test="subfunction != null and subfunction != ''"> and subfunction = #{subfunction} </if>
+			<if test="testType != null and testType != ''"> and testType = #{testType} </if>
+			<if test="caseType != null and caseType != ''"> and caseType = #{caseType} </if>
+			<if test="priority != null and priority != ''"> and priority = #{priority} </if>
+			<if test="weight != null and weight != ''"> and weight = #{weight} </if>
+			<if test="testItem != null and testItem != ''"> and testItem = #{testItem} </if>
+			<if test="testPoint != null and testPoint != ''"> and testPoint = #{testPoint} </if>
+			<if test="testCaseNumber != null and testCaseNumber != ''"> and testCaseNumber = #{testCaseNumber} </if>
+			<if test="systemInitialState != null and systemInitialState != ''"> and systemInitialState = #{systemInitialState} </if>
+			<if test="testInstructions != null and testInstructions != ''"> and testInstructions = #{testInstructions} </if>
+			<if test="expectedResult != null and expectedResult != ''"> and expectedResult = #{expectedResult} </if>
+			<if test="productionTaskNumber != null and productionTaskNumber != ''"> and productionTaskNumber = #{productionTaskNumber} </if>
+			<if test="testRequirements != null and testRequirements != ''"> and testRequirements = #{testRequirements} </if>
+			<if test="other != null and other != ''"> and other = #{other} </if>
+			<if test="tester != null and tester != ''"> and tester = #{tester} </if>
+			<if test="testRounds != null and testRounds != ''"> and testRounds = #{testRounds} </if>
+			<if test="scheduledTestDate != null and scheduledTestDate != ''"> and scheduledTestDate = #{scheduledTestDate} </if>
+			<if test="coreTimePointProperties != null and coreTimePointProperties != ''"> and coreTimePointProperties = #{coreTimePointProperties} </if>
+			<if test="notFunction != null and notFunction != ''"> and notFunction = #{notFunction} </if>
+			<if test="specialName != null and specialName != ''"> and specialName = #{specialName} </if>
+			<if test="customIndex1 != null and customIndex1 != ''"> and customIndex1 = #{customIndex1} </if>
+			<if test="customIndex2 != null and customIndex2 != ''"> and customIndex2 = #{customIndex2} </if>
+			<if test="customIndex3 != null and customIndex3 != ''"> and customIndex3 = #{customIndex3} </if>
+			<if test="customIndex4 != null and customIndex4 != ''"> and customIndex4 = #{customIndex4} </if>
+			<if test="customIndex5 != null and customIndex5 != ''"> and customIndex5 = #{customIndex5} </if>
+			<if test="automatedTestScriptName != null and automatedTestScriptName != ''"> and automatedTestScriptName = #{automatedTestScriptName} </if>
+			<if test="automatedTestExecutionOrder != null and automatedTestExecutionOrder != ''"> and automatedTestExecutionOrder = #{automatedTestExecutionOrder} </if>
+			<if test="upstreamProducts != null and upstreamProducts != ''"> and upstreamProducts = #{upstreamProducts} </if>
+			<if test="downstreamProducts != null and downstreamProducts != ''"> and downstreamProducts = #{downstreamProducts} </if>
+			<if test="batch != null and batch != ''"> and batch = #{batch} </if>
+			<if test="ifAutomated != null and ifAutomated != ''"> and ifAutomated = #{ifAutomated} </if>
+			<if test="taskId != null and taskId != ''"> and taskId = #{taskId} </if>
+		</where>
+	</select>
+	
+	<delete id="remove">
+		delete from test_manualcase where id = #{value}
+	</delete>
+	
+	<delete id="removeByTaskId">
+		delete from test_manualcase where taskId = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from test_manualcase where id in 
+		<foreach item="id" collection="array" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+
+</mapper>

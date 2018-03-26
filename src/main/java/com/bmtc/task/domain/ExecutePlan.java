@@ -34,7 +34,9 @@ public class ExecutePlan implements Serializable{
 	// 触发条件字段
 	private String condition;
 	// 执行设备:(1，Android，2，IOS)
-	private Long deviceType;
+	private String deviceType;
+	// 状态(逻辑删除标记:1,存在；0:删除)
+	private Long isDeleted;
 	// 执行状态:0,空闲;1,执行中
 	private Long status;
 	// 关联测试套路径集
@@ -88,11 +90,17 @@ public class ExecutePlan implements Serializable{
 	public void setCondition(String condition) {
 		this.condition = condition;
 	}
-	public Long getDeviceType() {
+	public String getDeviceType() {
 		return deviceType;
 	}
-	public void setDeviceType(Long deviceType) {
+	public void setDeviceType(String deviceType) {
 		this.deviceType = deviceType;
+	}
+	public Long getIsDeleted() {
+		return isDeleted;
+	}
+	public void setIsDeleted(Long isDeleted) {
+		this.isDeleted = isDeleted;
 	}
 	public Long getStatus() {
 		return status;

@@ -3,6 +3,7 @@ package com.bmtc.task.service;
 import java.util.List;
 
 import com.bmtc.common.utils.Query;
+import com.bmtc.common.utils.R;
 import com.bmtc.task.domain.ExecutePlan;
 
 /**
@@ -19,9 +20,9 @@ public interface ExecutePlanService {
 	// 通过id查询执行计划
 	ExecutePlan get(Long id);
 	// 保存执行计划
-	int save(ExecutePlan executePlan);
+	R save(ExecutePlan executePlan);
 	// 执行计划修改
-	int update(ExecutePlan executePlan);
+	R update(ExecutePlan executePlan);
 	// 执行测试计划(本地)
 	String active(Long id);
 	// 执行测试计划(ATP)

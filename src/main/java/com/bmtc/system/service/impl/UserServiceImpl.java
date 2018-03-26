@@ -1,7 +1,19 @@
 package com.bmtc.system.service.impl;
 
 import java.net.MalformedURLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bmtc.common.domain.Tree;
 import com.bmtc.common.utils.BuildTree;
@@ -14,24 +26,16 @@ import com.bmtc.system.domain.DeptDO;
 import com.bmtc.system.domain.UserDO;
 import com.bmtc.system.domain.UserProductDO;
 import com.bmtc.system.domain.UserRoleDO;
-import com.bmtc.system.service.DeptService;
 import com.bmtc.system.service.UserService;
-import com.bmtc.system.utils.GetDataByATP;
-import com.bmtc.system.utils.BMTC.ArrayOfInt;
-import com.bmtc.system.utils.BMTC.ArrayOfOrganization;
-import com.bmtc.system.utils.BMTC.ArrayOfUserInfo;
-import com.bmtc.system.utils.BMTC.BMTCSoap;
-import com.bmtc.system.utils.BMTC.Organization;
-import com.bmtc.system.utils.BMTC.UserInfo;
+import com.bmtc.system.vo.UserVO;
+import com.bmtc.wsdlATP.GetDataByATP;
+import com.bmtc.wsdlATP.BMTC.ArrayOfInt;
+import com.bmtc.wsdlATP.BMTC.ArrayOfOrganization;
+import com.bmtc.wsdlATP.BMTC.ArrayOfUserInfo;
+import com.bmtc.wsdlATP.BMTC.BMTCSoap;
+import com.bmtc.wsdlATP.BMTC.Organization;
+import com.bmtc.wsdlATP.BMTC.UserInfo;
 import com.google.common.primitives.Ints;
-import com.google.common.primitives.Longs;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 用户管理service实现类
@@ -53,6 +57,8 @@ public class UserServiceImpl implements UserService {
 	DeptDao deptMapper;
 	@Autowired
 	UserProductDao userProductMapper;
+	@Autowired
+	GetDataByATP getDataByATP;
 
 	/**
 	 * 通过用户id获取用户对象
@@ -63,11 +69,11 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDO get(Long id) {
 		logger.info("UserServiceImpl.get() start");
-		List<Long> roleIds = userRoleMapper.listRoleId(id);
+		 List<Long> roleIds = userRoleMapper.listRoleId(id);
 		UserDO user = userMapper.get(id);
 		// user.setDeptName(deptMapper.get(user.getDeptId()).getName());
-		user.setRoleIds(roleIds);
-		logger.info("UserServiceImpl.get() start");
+		 user.setRoleIds(roleIds);
+		logger.info("UserServiceImpl.get() end");
 		return user;
 	}
 
@@ -110,6 +116,7 @@ public class UserServiceImpl implements UserService {
 		logger.info("UserServiceImpl.save() start");
 		// 将用户设置为待审批状态
 		user.setStatus(2);
+		user.setBirth(new Date());
 		//从页面获取产品id并将其转化为list
 		user.getDeptIds();
 		String[] deptIds = user.getDeptIds().split(",");
@@ -139,7 +146,7 @@ public class UserServiceImpl implements UserService {
 				}
 			}
 			//调取接口在ATP平台注册用户
-			BMTCSoap soap = GetDataByATP.getData();
+			BMTCSoap soap = getDataByATP.getData();
 			String res = null;
 			res = soap.createATPUser(user.getName(), user.getUsername(),
 					user.getPassword(), firstDepartmentId, firstTeamId,
@@ -260,7 +267,7 @@ public class UserServiceImpl implements UserService {
 			throws MalformedURLException {
 		logger.info("UserServiceImpl.exist() start");
 		//从ATP获取用户信息
-		BMTCSoap soap = GetDataByATP.getData();
+		BMTCSoap soap = getDataByATP.getData();
 		ArrayOfUserInfo userLists = soap.getUserLists();
 		List<UserInfo> userInfos = userLists.getUserInfo();
 		//判断该用户在ATP中存在
@@ -432,6 +439,41 @@ public class UserServiceImpl implements UserService {
 		Long[] listAllDept = userProductMapper.listAllDept();
 		logger.info("UserServiceImpl.listAllDept() end");
 		return listAllDept;
+	}
+	
+	/**
+	 * 通过用户id批量查询用户对象
+	 */
+	@Override
+	public List<UserDO> getUsers(List<Long> ids) {
+		logger.info("UserServiceImpl.getUsers() start");
+		List<UserDO> userList = new ArrayList<UserDO>();
+		for (Long id : ids) {
+			UserDO userDO = userMapper.get(id);
+			userList.add(userDO);
+		}
+		logger.info("UserServiceImpl.getUsers() end");
+		return userList;
+	}
+	
+	/**
+	 * 用户提交修改提交密码
+	 */
+	@Override
+	public int resetPassword(UserVO userVO,UserDO userDO) throws Exception{
+		logger.info("UserServiceImpl.resetPassword() start");
+		if (Objects.equals(userVO.getUserDO().getUserId(),userDO.getUserId())) {
+				if (Objects.equals(MD5Utils.encryptPureMD5(userVO.getPwdOld()),
+						userDO.getPassword())) {
+					userDO.setPassword(MD5Utils.encryptPureMD5(userVO.getPwdNew()));
+					logger.info("UserServiceImpl.resetPassword() end");
+					return userMapper.update(userDO);
+				}else{
+					throw new Exception("输入的旧密码有误!");
+				}
+		}else{
+			throw new Exception("你修改的不是你登陆的账号");
+		}
 	}
 
 }

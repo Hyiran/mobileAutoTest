@@ -43,5 +43,8 @@ public interface DeptService {
 	//通过产品机构名称获取产品机构对象
 	DeptDO getName(String name);
 	
+	//通过产品id获取所对应的用户id
+	List<Long> getUserIdByDeptId(Long deptId);
+	
 
 }

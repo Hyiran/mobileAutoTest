@@ -13,14 +13,15 @@ public class ProductSvn implements Serializable{
 	//产品名称
 	private String productName;
 	//产品Id
-	private Integer productId;
+	private Long productId;
 	//产品svn仓库路径
 	private String repository;
 	//svn用户名
 	private String username;
 	//svn用户名密码
 	private String password;
-	
+	//svn产品批次名称
+	private String svnBatchName;
 	
 	public String getProductName() {
 		return productName;
@@ -28,10 +29,10 @@ public class ProductSvn implements Serializable{
 	public void setProductName(String productName) {
 		this.productName = productName;
 	}
-	public Integer getProductId() {
+	public Long getProductId() {
 		return productId;
 	}
-	public void setProductId(Integer productId) {
+	public void setProductId(Long productId) {
 		this.productId = productId;
 	}
 	public String getRepository() {
@@ -52,11 +53,20 @@ public class ProductSvn implements Serializable{
 	public void setPassword(String password) {
 		this.password = password;
 	}
+	
+	public String getSvnBatchName() {
+		return svnBatchName;
+	}
+	public void setSvnBatchName(String svnBatchName) {
+		this.svnBatchName = svnBatchName;
+	}
+	
 	@Override
 	public String toString() {
 		return "ProductSvn [productName=" + productName + ", productId="
 				+ productId + ", repository=" + repository + ", username="
-				+ username + ", password=" + password + "]";
+				+ username + ", password=" + password + ", svnBatchName="
+				+ svnBatchName + "]";
 	}
 	
 }

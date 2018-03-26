@@ -18,13 +18,17 @@ import com.bmtc.common.config.BMTCConfig;
 import com.bmtc.common.domain.Tree;
 import com.bmtc.common.utils.BuildTree;
 import com.bmtc.common.utils.Query;
+import com.bmtc.common.utils.R;
 import com.bmtc.device.domain.TestCaseTable;
 import com.bmtc.device.service.TestCaseService;
 import com.bmtc.script.dao.ScriptDao;
+import com.bmtc.script.dao.TempScriptDao;
 import com.bmtc.script.domain.Script;
 import com.bmtc.script.service.ScriptService;
+import com.bmtc.svn.domain.SvnCreateBranchInfo;
+import com.bmtc.svn.domain.SvnUserRepoInfo;
+import com.bmtc.svn.service.SvnAdminService;
 import com.bmtc.svn.service.UpdateLocalCodeBySvnRepoService;
-import com.bmtc.system.domain.BatchDO;
 import com.bmtc.system.domain.DeptDO;
 import com.bmtc.system.service.BatchService;
 import com.bmtc.system.service.DeptService;
@@ -48,6 +52,8 @@ public class ScriptServiceImpl implements ScriptService {
 	@Autowired
 	ScriptDao scriptMapper;
 	@Autowired
+	TempScriptDao tempScriptMapper;
+	@Autowired
 	ExecutePlanScriptDao executePlanScriptMapper;
 	@Autowired
 	BMTCTaskService bmtcTaskService;
@@ -61,6 +67,8 @@ public class ScriptServiceImpl implements ScriptService {
 	BMTCConfig bmtcConfig;
 	@Autowired
 	TestCaseService testCaseService;
+	@Autowired
+	SvnAdminService svnAdminService;
 	@Autowired
 	private UpdateLocalCodeBySvnRepoService updateLocalCodeBySvnRepoService;
 
@@ -97,13 +105,22 @@ public class ScriptServiceImpl implements ScriptService {
 	 * @return boolean
 	 */
 	@Override
-	public boolean updateScriptData(DeptDO deptDO) {
+	public R updateScriptData(DeptDO deptDO) {
 		logger.info("ScriptServiceImpl.updateScriptData() start");
 		// 调用svn接口，扫描svn库，下载库中测试套到本地
 		long scriptVersion = 0;
 		// 下载的Url
 		deptDO = deptService.get(deptDO.getDeptId());
-		String url = deptDO.getSvnName();
+		SvnCreateBranchInfo info = svnAdminService.getSvnBranchInfoIdAndBatchId(Long.valueOf(deptDO.getDeptId()),null);
+		// 判断url是否为空
+		if(info == null) {
+			return R.error("所选择的产品无对应SVN库，请联系SVN管理员，创建此产品对应的SVN仓库！");
+		}
+		String svnRepoUrl = info.getSvnRepoUrl();
+		// 判断url是否为空
+		if(svnRepoUrl == null || "".equals(svnRepoUrl)) {
+			return R.error("此产品对应的SVN仓库路径不存在，请联系SVN管理员！");
+		}
 		// 下载到本地的地址
 		String downLoadPath = bmtcConfig.getLocalPath() + "/"
 				+ deptDO.getName();
@@ -111,43 +128,58 @@ public class ScriptServiceImpl implements ScriptService {
 		// 如果文件夹不存在，创建文件夹
 		if (!file.exists()) {
 			file.mkdir();
+		} else {
+			File[] files = file.listFiles();
+			for (File f : files) {
+				if(".svn".equals(f.getName())) {
+					f.delete();
+				}
+			}
+		}
+		// 获得仓库的用户名和密码
+		SvnUserRepoInfo repoInfo = svnAdminService.getSvnUserRepoInfoIdAndBatchId(deptDO.getDeptId(), null);
+		// 判断url是否为空
+		if(repoInfo == null) {
+			return R.error("您没有获得所选择的产品对应SVN库的权限，请联系SVN管理员！");
 		}
 		try {
 			// 下载脚本
-			scriptVersion = updateLocalCodeBySvnRepoService
-					.updateLocalCodeBySvnRepo(url, bmtcConfig.getUsername(),
-							bmtcConfig.getPassword(), file, null);
+			scriptVersion = updateLocalCodeBySvnRepoService.updateLocalCodeBySvnRepo(svnRepoUrl, repoInfo.getSvnUserName(),
+					repoInfo.getSvnPassword(), file, null);
 			logger.info("测试脚本版本 {" + scriptVersion + "}");
-			// 获取库里所有的脚本
-			List<Script> scriptList = scriptMapper
-					.list(new HashMap<String, Object>());
 			List<Script> scripts = new ArrayList<Script>();
 			// 全量直接解析入库，增量根据操作类型，调整数据库数据，然后同步
-			if (!parseScript(file, scripts)) {
-				logger.error("脚本信息同步数据库异常，请检查更新数据库脚本信息逻辑");
-				// 返回同步跟新失败
-				return false;
-			}
-			// 遍历list,删除库中多余元素
-			for (Script script : scriptList) {
-				boolean flag = false;
-				for (Script s : scripts) {
-					if (script.getTestSuitPath().equals(s.getTestSuitPath())) {
-						flag = true;
-					}
+			List<Script> parseScript = parseScript(file, scripts);
+			// 遍历解析的新数据
+			for (Script script : parseScript) {
+				// 查看脚本库是否存在此脚本信息
+				Script st = scriptMapper.getScriptByTestSuitPath(script.getTestSuitPath());
+				// 绑定脚本所属的产品
+				script.setDeptId(deptDO.getDeptId());
+				if(st == null) {// 不存在脚本，save
+					Long maxId = scriptMapper.getMaxId();
+					script.setScriptId(maxId);
+					tempScriptMapper.save(script);
+				} else {// 存在脚本，insert
+					script.setScriptId(st.getScriptId());
+					tempScriptMapper.insert(script);
 				}
-				if (!flag) {
-					scriptMapper.remove(script.getScriptId());
-				}
 			}
+			// 删除主表脚本信息
+			scriptMapper.removeByDeptId(deptDO.getDeptId());
+			// 将临时表数据存入主表，并清空临时表
+			List<Script> list = tempScriptMapper.list(new HashMap<String, Object>());
+			for (Script script : list) {
+				scriptMapper.insert(script);
+			}
+			// 清空临时表
+			tempScriptMapper.delete();
 			logger.info("ScriptServiceImpl.updateScriptData() end");
 			// 返回同步跟新成功
-			return true;
+			return R.ok("同步成功！");
 		} catch (SVNException e) {
-			logger.error("svn下载脚本异常，请检查svn参数是否正确");
-			e.printStackTrace();
 			// 返回同步跟新失败
-			return false;
+			return R.error("svn下载脚本异常，请检查svn参数是否正确");
 		}
 	}
 	/**
@@ -155,7 +187,7 @@ public class ScriptServiceImpl implements ScriptService {
 	 * @param File file,List<Script> list
 	 * @return boolean
 	 */
-	private boolean parseScript(File file, List<Script> list) {
+	private List<Script> parseScript(File file, List<Script> list) {
 		// 获取该路径下的文件及文件夹
 		File[] files = file.listFiles();
 		// 遍历
@@ -183,7 +215,6 @@ public class ScriptServiceImpl implements ScriptService {
 								.currentTimeMillis()));
 						script.setScriptName(scriptName);
 						script.setTestSuitPath(absolutePath);
-						scriptMapper.update(script);
 						list.add(script);
 					} else {// 如果script为空，添加
 						script = new Script();
@@ -204,7 +235,7 @@ public class ScriptServiceImpl implements ScriptService {
 							script.setGmtModified(new Date(System
 									.currentTimeMillis()));
 							script.setTestSuitPath(absolutePath);
-							scriptMapper.save(script);
+							list.add(script);
 						}
 					}
 				}
@@ -212,7 +243,7 @@ public class ScriptServiceImpl implements ScriptService {
 				parseScript(f, list);
 			}
 		}
-		return true;
+		return list;
 	}
 	// 通过id查询脚本信息
 	/**
@@ -333,8 +364,6 @@ public class ScriptServiceImpl implements ScriptService {
 	@Override
 	public Tree<Script> getTaskScriptTreeData(Long id) {
 		logger.info("ScriptServiceImpl.getTaskScriptTreeData() start");
-		// 通过执行计划ID获取执行计划对象
-		// ExecutePlan executePlan = executePlanService.get(id);
 		// 获取该测试相关的脚本数据
 		List<ExecutePlanScriptDO> executePlanScripts = executePlanScriptMapper
 				.getExecutePlanScriptByExecutePlanId(id);
@@ -416,17 +445,16 @@ public class ScriptServiceImpl implements ScriptService {
 		// 通过taskId获得对应的task对象
 		Long taskId = Long.valueOf(id);
 		BMTCTask bmtcTask = bmtcTaskService.get(taskId);
-		BatchDO batchDO = batchService.get(Integer.valueOf(bmtcTask
-				.getBatchId().toString()));
-		String svnPath = bmtcTask.getSvnPath() + "/"
-				+ batchDO.getBatchSvnPath();
+		// 通过产品ID和批次ID获得对应的SVN路径
+		SvnCreateBranchInfo info = svnAdminService.getSvnBranchInfoIdAndBatchId(bmtcTask.getDeptId(), bmtcTask.getBatchId());
+		String svnPath = info.getNewBranch().replace("\\", "/");
+		// 批次分支文件夹名称
+		String batchSVNName = svnPath.replace(info.getSvnRepoUrl().replace("\\", "/")+"/", "");
 		// 创建List<Tree>存储测试任务相关的脚本数据
 		List<Tree<String>> trees = new ArrayList<Tree<String>>();
 		// svn路径和本地路径转换
-		String filePath = svnPath.replace(bmtcConfig.getUrl(),
-				(bmtcConfig.getLocalPath() + "/" + bmtcTask.getDeptName()))
-				.replace("\\", "/");
-		// 从配置文件常量中获取SvnRpoPath
+		String filePath = svnPath.replace(svnPath,
+				(bmtcConfig.getLocalPath() + "/" + bmtcTask.getDeptName()) + "/" + batchSVNName);
 		File file = new File(filePath);
 		// 解析此路径下所有文件为树形结构
 		List<Tree<String>> tree = pathToTree(file, trees);

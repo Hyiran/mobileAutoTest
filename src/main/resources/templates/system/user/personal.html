@@ -13,7 +13,7 @@
                     <div class="gg-nav">
                         <ul class="nav nav-tabs">
                             <li class="active"><a href="#basic_info" data-toggle="tab">基本资料</a></li>
-                            <li><a href="#photo_info" data-toggle="tab">头像修改</a></li>
+                           <!--  <li><a href="#photo_info" data-toggle="tab">头像修改</a></li> -->
                             <li><a href="#pwd_info" data-toggle="tab">修改密码</a></li>
                         </ul>
                     </div>
@@ -102,7 +102,7 @@
                                     <input type="text" class="form-control" id="address" name="liveAddress" th:value="${user.liveAddress}" placeholder="请输入居住地址" />
                                 </div>
                             </div>
-                            <div class="gg-formGroup">
+                           <!--  <div class="gg-formGroup">
                                 <div class="gg-formTitle">
                                     <em class="gg-star">*</em>
                                     <span>爱好:</span>
@@ -115,14 +115,14 @@
                                         </label>
                                     </div>
                                 </div>
-                            </div>
+                            </div> -->
                         </form>
                         <div class="gg-btnGroup">
                             <button type="button" class="btn btn-sm btn-primary" id="base_save">保存</button>
                         </div>
                     </div>
                     <!--photo_info-->
-                    <div class="ibox-content tab-pane fade gg" id="photo_info">
+                   <!--  <div class="ibox-content tab-pane fade gg" id="photo_info">
                         <div class="ggcontainer" id="crop-avatar">
                             <form class="avatar-form" action="/common/sysFile/upload" enctype="multipart/form-data" method="post">
                                 <div class="avatar-body">
@@ -132,7 +132,7 @@
                                         <label for="avatarInput">上传图片</label>
                                         <input class="avatar-input" id="avatarInput" name="avatar_file" type="file">
                                     </div>
-                                    <!-- Crop and preview -->
+                                    Crop and preview
                                     <div class="row">
                                         <div class="col-md-9">
                                             <div class="avatar-wrapper"></div>
@@ -164,11 +164,11 @@
                                         </div>
                                     </div>
                                 </div>
-                            </form>
+                            </form> -->
                             <!-- Loading state -->
-                            <div class="loading" aria-label="Loading" role="img" tabindex="-1"></div>
+                          <!--   <div class="loading" aria-label="Loading" role="img" tabindex="-1"></div>
                         </div>
-                    </div>
+                    </div> -->
                     <!--pwd_info-->
                     <div class="ibox-content tab-pane fade" id="pwd_info">
                         <form class="gg-form" role="form" id="modifyPwd">

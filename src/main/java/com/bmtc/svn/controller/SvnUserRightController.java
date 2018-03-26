@@ -185,12 +185,18 @@ public class SvnUserRightController extends BaseController {
 	
 	@RequiresPermissions("svn:svnUserRight:addSvnUserRight")
 	@Log("添加svn用户权限")
-	@GetMapping("/add/{svnUserName}/{svnRepoName}")
-	String add(Model model, @PathVariable("svnUserName") String svnUserName, 
+	@GetMapping("/add/{name}/{svnUserName}/{svnRepoName}")
+	String add(Model model, @PathVariable("name") String name, 
+			@PathVariable("svnUserName") String svnUserName, 
 			@PathVariable("svnRepoName") String svnRepoName) {
 		logger.info("SvnUserRightController.add() start");
 		SvnInfo svnInfo = new SvnInfo();
+		// 若用户姓名为"null"时，则设置为"*"
+		if(name.equals("null")) {
+			name = "所有SVN用户";
+		}
 		//准备数据
+		svnInfo.setName(name);
 		svnInfo.setSvnUserName(svnUserName);
 		svnInfo.setSvnRepoName(svnRepoName);
 		SvnRepo svnRepo = svnRepoService.querySvnRepoBySvnRepoName(svnRepoName);
@@ -202,14 +208,16 @@ public class SvnUserRightController extends BaseController {
 	
 	@RequiresPermissions("svn:svnUserRight:passTest")
 	@Log("测试svn联通性")
-	@GetMapping("/passTest/{svnUserName}/{svnRepoName}/{svnUserAuthz}/**")
-	String passTest(Model model, HttpServletRequest request, @PathVariable("svnUserName") String svnUserName, 
-			@PathVariable("svnRepoName") String svnRepoName, @PathVariable("svnUserAuthz") String svnUserAuthz) {
+	@GetMapping("/passTest/{name}/{svnUserName}/{svnRepoName}/{svnUserAuthz}/**")
+	String passTest(Model model, HttpServletRequest request, @PathVariable("name") String name,
+			@PathVariable("svnUserName") String svnUserName, @PathVariable("svnRepoName") String svnRepoName, 
+			@PathVariable("svnUserAuthz") String svnUserAuthz) {
 		logger.info("SvnUserRightController.passTest() start");
 		SvnInfo svnInfo = new SvnInfo();
 		//获取svn权限路径
 		String svnPath = ExtractPathFromPattern.extractPathFromPattern(request);
 		//准备数据
+		svnInfo.setName(name);
 		svnInfo.setSvnUserName(svnUserName);
 		svnInfo.setSvnRepoName(svnRepoName);
 		svnInfo.setSvnPath(svnPath);
@@ -223,12 +231,18 @@ public class SvnUserRightController extends BaseController {
 	
 	@RequiresPermissions("svn:svnUserRight:removeSvnUserRight")
 	@Log("删除svn用户权限")
-	@GetMapping("/remove/{svnUserName}/{svnRepoName}")
-	String remove(Model model, @PathVariable("svnUserName") String svnUserName, 
+	@GetMapping("/remove/{name}/{svnUserName}/{svnRepoName}")
+	String remove(Model model, @PathVariable("name") String name, 
+			@PathVariable("svnUserName") String svnUserName, 
 			@PathVariable("svnRepoName") String svnRepoName) {
 		logger.info("SvnUserRightController.remove() start");
 		SvnInfo svnInfo = new SvnInfo();
+		// 若用户姓名为"null"时，则设置为"*"
+		if(name.equals("null")) {
+			name = "所有SVN用户";
+		}
 		//准备数据
+		svnInfo.setName(name);
 		svnInfo.setSvnUserName(svnUserName);
 		svnInfo.setSvnRepoName(svnRepoName);
 		SvnRepo svnRepo = svnRepoService.querySvnRepoBySvnRepoName(svnRepoName);
@@ -265,7 +279,7 @@ public class SvnUserRightController extends BaseController {
 			logger.error("svnPath is null");
 			return R.error(-1, "请求输入svnPath参数");
 		}
-		if (StringUtils.isEmpty(svnUserAuthzInfo.getSvnUserAuthz())) {
+		if (!svnUserAuthzInfo.getSvnUserName().equals("*") && StringUtils.isEmpty(svnUserAuthzInfo.getSvnUserAuthz())) {
 			logger.error("svnUserAuthz is null");
 			return R.error(-1, "请求输入svnUserAuthz参数");
 		}
@@ -305,12 +319,12 @@ public class SvnUserRightController extends BaseController {
 		svnUserAuthz.setStatus(svnUserAuthzInfo.getAuthzStatus());
 		svnUserAuthz.setSvnRepoName(svnUserAuthzInfo.getSvnRepoName() );
 		
-		//校验svnUserAuthz参数
+/*		//校验svnUserAuthz参数
 		PushMsg pmg = checkSvnUserAuthzParam(svnUserAuthz);
 		if (!pmg.getStatus()) {
 			logger.error("svnUserAuthz is null");
 			return R.error(-1, "svnUserAuthz is null");
-		}
+		}*/
 		
 		int res = 0;
 		try {
@@ -754,7 +768,7 @@ public class SvnUserRightController extends BaseController {
 		logger.info("SvnUserRightController.querySvnUserRight() start");
 		// 分页查询参数数据
 		Query query = new Query(params);
-		// 根据SVN用户名(可为空)、仓库名(可为空)、SVN路径(可为空)、SVN权限(可为空)查询用户SVN权限
+		// 根据SVN用户名(可为空)、姓名(可为空)、仓库名(可为空)、SVN路径(可为空)、SVN权限(可为空)查询用户SVN权限
 		List<SvnUserAuthzInfo> list = svnUserRightService.querySvnRight(query);
 		// 查询总记录数
 		int total = svnUserRightService.countSvnRight(query);

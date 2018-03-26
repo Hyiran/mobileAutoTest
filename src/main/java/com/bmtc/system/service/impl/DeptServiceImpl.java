@@ -1,5 +1,11 @@
 package com.bmtc.system.service.impl;
 
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,22 +14,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigInteger;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.bmtc.common.domain.Tree;
 import com.bmtc.common.utils.BuildTree;
 import com.bmtc.system.dao.DeptDao;
 import com.bmtc.system.dao.UserDao;
+import com.bmtc.system.dao.UserProductDao;
 import com.bmtc.system.domain.DeptDO;
 import com.bmtc.system.service.DeptService;
-import com.bmtc.system.utils.GetDataByATP;
-import com.bmtc.system.utils.BMTC.ArrayOfString;
-import com.bmtc.system.utils.BMTC.BMTCSoap;
+import com.bmtc.wsdlATP.GetDataByATP;
+import com.bmtc.wsdlATP.BMTC.ArrayOfString;
+import com.bmtc.wsdlATP.BMTC.BMTCSoap;
 
 
 /**
@@ -40,10 +40,16 @@ public class DeptServiceImpl implements DeptService {
 			.getLogger(DeptServiceImpl.class);
 	
 	@Autowired
-	private DeptDao sysDeptMapper;
+	DeptDao sysDeptMapper;
 	
 	@Autowired
-	private UserDao userMapper;
+	UserDao userMapper;
+	
+	@Autowired
+	GetDataByATP getDataByATP;
+	
+	@Autowired
+	UserProductDao UserProductMapper;
 	
 	/**
 	 * 通过产品机构id获取产品机构对象
@@ -81,13 +87,13 @@ public class DeptServiceImpl implements DeptService {
 	 */
 	@Override
 	@Transactional
-	@Scheduled(cron="0 0 0,12 * * ?")
+	@Scheduled(cron = "${bmtc.updateOrganization}")
 	public void save() throws MalformedURLException{
 		logger.info("DeptServiceImpl.save() start");
 		//清除产品机构临时数据表信息
 		sysDeptMapper.removeTemp();
 		//从ATP获取产品机构信息
-		BMTCSoap soap = GetDataByATP.getData();
+		BMTCSoap soap = getDataByATP.getData();
 		ArrayOfString allProducts = soap.getAllProducts();
 		List<String> products = allProducts.getString();
 		for (String obj :products) {
@@ -95,16 +101,15 @@ public class DeptServiceImpl implements DeptService {
 			String[] organization = obj.split("\\|");
 			DeptDO sysDept = new DeptDO();
 			Long id = Long.parseLong(organization[0]);
-			DeptDO deptDO = get(id);
 			//判断数据库表中是否存在该信息
-			if (deptDO == null || deptDO.getDeptId() != id || !organization[1].equals(deptDO.getName())) {
+			if (get(id) == null || !(organization[1].trim()).equals(get(id).getName())) {
 				sysDept.setDeptId(id);
 				sysDept.setName(organization[1]);
 				sysDept.setParentId(Long.parseLong(organization[2]));
 				sysDept.setOrganLevel(Integer.parseInt(organization[3]));
 				sysDeptMapper.saveTemp(sysDept);
 			}else{
-				sysDeptMapper.saveTemp(deptDO);
+				sysDeptMapper.saveTemp(get(id));
 			}
 		}
 		//清除产品机构数据库表
@@ -200,6 +205,16 @@ public class DeptServiceImpl implements DeptService {
 		logger.info("DeptServiceImpl.getName() start");
 		logger.info("DeptServiceImpl.getName() end");
 		return sysDeptMapper.getName(name);
+	}
+	
+	/**
+	 * 通过产品id获取所对应的用户id
+	 */
+	@Override
+	public List<Long> getUserIdByDeptId(Long deptId) {
+		logger.info("DeptServiceImpl.getUserIdByDeptId() start");
+		logger.info("DeptServiceImpl.getUserIdByDeptId() end");
+		return UserProductMapper.getUserIdByDeptId(deptId);
 	}
 
 

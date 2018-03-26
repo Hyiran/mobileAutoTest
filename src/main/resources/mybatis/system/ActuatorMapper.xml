@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bmtc.system.dao.ActuatorDao">
+
+	<resultMap type="com.bmtc.system.domain.Actuator" id = "rActuator">
+		<id property = "id" column = "id"/>
+		<result property = "ip" column = "ip" />
+		<result property = "deviceUri" column = "deviceUri" />
+		<result property = "activeUri" column = "activeUri" />
+		<result property = "downLoadUri" column = "downLoadUri" />
+	</resultMap>
+
+	<select id="get" resultType="com.bmtc.system.domain.Actuator" resultMap = "rActuator">
+		select
+			`id`,
+			`ip`,
+			`deviceUri`,
+			`activeUri`,
+			`downLoadUri`
+		from
+			test_actuator
+		where
+			id = #{value}
+	</select>
+
+	<select id="list" resultType="com.bmtc.system.domain.Actuator">
+		select
+			`id`,
+			`ip`,
+			`deviceUri`,
+			`activeUri`,
+			`downLoadUri`
+		from 
+			test_actuator
+		<where>
+			<if test="id != null and id != ''">
+			 and id = #{id} </if>
+			<if test="ip != null and ip != ''">
+			 and ip = #{ip} </if>
+			<if test="deviceUri != null and deviceUri != ''">
+			 and deviceUri = #{deviceUri} </if>
+			<if test="activeUri != null and activeUri != ''">
+			 and activeUri = #{activeUri} </if>
+			<if test="downLoadUri != null and downLoadUri != ''">
+			 and downLoadUri = #{downLoadUri} </if>
+		</where>
+		<choose>
+			<when test="sort != null and sort.trim() != ''">
+				order by ${sort} ${order}
+			</when>
+			<otherwise>
+				order by id desc
+			</otherwise>
+		</choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+
+	<select id="count" resultType="int">
+		select count(*) from test_actuator
+		<where>
+			<if test="id != null and id != ''">
+			 and id = #{id} </if>
+			<if test="ip != null and ip != ''">
+			 and ip = #{ip} </if>
+			<if test="deviceUri != null and deviceUri != ''">
+			 and deviceUri = #{deviceUri} </if>
+			<if test="activeUri != null and activeUri != ''">
+			 and activeUri = #{activeUri} </if>
+			<if test="downLoadUri != null and downLoadUri != ''">
+			 and downLoadUri = #{downLoadUri} </if>
+		</where>
+	</select>
+
+	<insert id="save" parameterType="com.bmtc.system.domain.Actuator"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into test_actuator
+		(
+			`ip`,
+			`deviceUri`,
+			`activeUri`,
+			`downLoadUri`
+		)
+		values
+		(
+			#{ip},
+			#{deviceUri},
+			#{activeUri},
+			#{downLoadUri}
+		)
+	</insert>
+	
+	<update id="update" parameterType="com.bmtc.system.domain.Actuator">
+		update test_actuator
+		<set>
+			<if test="id != null"> id = #{id}, </if>
+			<if test="ip != null"> ip = #{ip}, </if>
+			<if test="activeUri != null"> deviceUri = #{deviceUri}, </if>
+			<if test="activeUri != null"> activeUri = #{activeUri}, </if>
+			<if test="downLoadUri != null"> downLoadUri = #{downLoadUri}, </if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="remove">
+		delete from test_actuator where id = #{value}
+	</delete>
+
+</mapper>

@@ -12,8 +12,6 @@
 							<div id="part1">
 								<!-- 测试任务ID，隐藏域 -->
 								<input id="taskId" name="taskId" type="hidden" th:value="${bMTCTask.taskId}">
-								<!-- 关联测试任务的脚本的caseName，隐藏域 -->
-								<input id="testSuiteCaseNames" name="testSuiteCaseNames" type="hidden">
 								<!-- 测试任务名称 -->
 								<div class="form-group">
 									<label class="col-sm-3 control-label">测试任务名称：</label>
@@ -36,7 +34,7 @@
 								<div class="form-group">
 									<label class="col-sm-3 control-label">测试任务SVN库名：</label>
 									<div class="col-sm-8">
-										<input id="svnPath" name="svnPath" class="form-control" 
+										<input id="svnPath" name="svnPath" readonly="readonly" class="form-control" 
 										type="text" th:value="${bMTCTask.svnPath}" placeholder="eg:svn://22.11.31.36/automation_test/branches">
 									</div>
 								</div>
@@ -55,7 +53,7 @@
 								<div class="form-group">
 									<label class="col-sm-3 control-label">测试任务SVN批次分支名称：</label>
 									<div class="col-sm-8">
-										<input id="batchSvnPath" name="batchSvnPath"
+										<input id="batchSvnPath" readonly="readonly" name="batchSvnPath"
 											class="form-control" type="text" th:value="${batchSvnPath}">
 									</div>
 								</div>

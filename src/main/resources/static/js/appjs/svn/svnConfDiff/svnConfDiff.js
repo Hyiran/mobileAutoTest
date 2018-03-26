@@ -55,27 +55,27 @@ function load() {
 					},
 					{
 						field : 'svnRepoId',
-						title : 'SVN仓库ID',
+						title : 'SVN产品仓库ID',
 						align : 'center'
 					},
 					{
 						field : 'svnRepoName',
-						title : 'SVN仓库名',
+						title : 'SVN产品仓库名',
 						align : 'center'
 					},
 					{
 						field : 'svnRepoPath',
-						title : 'SVN仓库路径',
+						title : 'SVN产品仓库路径',
 						align : 'center'
 					},
 					{
 						field : 'svnRepoUrl',
-						title : 'SVN仓库URL',
+						title : 'SVN产品仓库URL',
 						align : 'center'
 					},
 /*					{
 						field : 'svnRepoDes',
-						title : 'SVN仓库描述',
+						title : 'SVN产品仓库描述',
 						align : 'center'
 					},*/
 					{

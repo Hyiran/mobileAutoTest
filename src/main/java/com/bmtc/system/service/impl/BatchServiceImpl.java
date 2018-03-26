@@ -19,9 +19,9 @@ import com.bmtc.common.utils.BuildTree;
 import com.bmtc.system.dao.BatchDao;
 import com.bmtc.system.domain.BatchDO;
 import com.bmtc.system.service.BatchService;
-import com.bmtc.system.utils.GetDataByATP;
-import com.bmtc.system.utils.BMTC.ArrayOfString;
-import com.bmtc.system.utils.BMTC.BMTCSoap;
+import com.bmtc.wsdlATP.GetDataByATP;
+import com.bmtc.wsdlATP.BMTC.ArrayOfString;
+import com.bmtc.wsdlATP.BMTC.BMTCSoap;
 
 /**
  * 批次service的实现类
@@ -38,6 +38,8 @@ public class BatchServiceImpl implements BatchService{
 	
 	@Autowired
 	BatchDao batchMapper;
+	@Autowired
+	GetDataByATP getDataByATP;
 	
 	/**
 	 * 查询批次数据
@@ -68,28 +70,26 @@ public class BatchServiceImpl implements BatchService{
 	 */
 	@Transactional
 	@Override
-	@Scheduled(cron="0 0 0,13 * * ?")
+	@Scheduled(cron = "${bmtc.updateOrganization}")
 	public void save() throws MalformedURLException {
 		logger.info("BatchServiceImpl.save() start");
 		//清除批次临时表数据
 		batchMapper.removeTemp();
 		//从ATP获取批次信息
-		BMTCSoap soap = GetDataByATP.getData();
+		BMTCSoap soap = getDataByATP.getData();
 		ArrayOfString batchList = soap.getBatchList();
 		List<String> batchData = batchList.getString();
 		for (String obj : batchData) {
 			String[] batchs = obj.split("\\|");
 			BatchDO batch = new BatchDO();
-			int id = Integer.parseInt(batchs[0]);
-			BatchDO batchDO = get(id);
+			Long id = Long.parseLong(batchs[0]);
 			//判断批次是否存在本地数据库
-			if (batchDO ==null || batchDO.getBatchId() != id 
-					|| !batchs[1].equals(batchDO.getBatchName())) {
+			if (get(id) ==null || !(batchs[1].trim()).equals(get(id).getBatchName())) {
 				batch.setBatchId(id);
 				batch.setBatchName(batchs[1]);
 				batchMapper.saveTemp(batch);
 			}else{
-				batchMapper.saveTemp(batchDO);
+				batchMapper.saveTemp(get(id));
 			}
 			
 		}
@@ -106,10 +106,10 @@ public class BatchServiceImpl implements BatchService{
 	 * 通过批次id获取批次对象
 	 */
 	@Override
-	public BatchDO get(Integer batchId) {
+	public BatchDO get(Long id) {
 		logger.info("BatchServiceImpl.get() start");
 		logger.info("BatchServiceImpl.get() end");
-		return batchMapper.get(batchId);
+		return batchMapper.get(id);
 	}
 	
 	/**

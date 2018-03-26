@@ -2,6 +2,7 @@ package com.bmtc.task.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 /**
@@ -73,15 +74,15 @@ public class ExecuteDetail implements Serializable{
 	public void setProductSvn(ProductSvn productSvn) {
 		this.productSvn = productSvn;
 	}
-
 	public String getTestSuitePath() {
 		return testSuitePath;
 	}
-
 	public void setTestSuitePath(String testSuitePath) {
 		this.testSuitePath = testSuitePath;
 	}
-
+	public void setCaseName(String caseName) {
+		this.caseName = caseName;
+	}
 	public Long getTaskId() {
 		return taskId;
 	}
@@ -98,13 +99,6 @@ public class ExecuteDetail implements Serializable{
 		this.status = status;
 	}
 
-	public String getCaseName() {
-		return caseName;
-	}
-
-	public void setCaseName(String caseName) {
-		this.caseName = caseName;
-	}
 
 	public String getDeviceType() {
 		return deviceType;

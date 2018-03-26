@@ -34,7 +34,9 @@ function load() {
 						// 说明：传入后台的参数包括offset开始索引，limit步长，sort排序列，order：desc或者,以及所有列的键值对
 						limit : params.limit,
 						offset : params.offset,
-						svnRepoName : $('#searchSvnRepoName').val()
+						deptName : $('#searchDeptName').val(),
+						batchName : $('#searchBatchName').val(),
+						svnRepoName : $('#searchSvnRepoName').val()						
 					};
 				},
 				// //请求服务器数据时，你可以通过重写参数的方式添加一些额外的参数，例如 toolbar中的参数 如果
@@ -54,13 +56,13 @@ function load() {
 						align : 'center'
 					},
 					{
-						field : 'deptName',
-						title : '所属产品',
+						field : 'batchName',
+						title : '所属批次',
 						align : 'center'
 					},
 					{
-						field : 'batchName',
-						title : '所属批次',
+						field : 'deptName',
+						title : '所属产品',
 						align : 'center'
 					},
 /*					{
@@ -70,37 +72,37 @@ function load() {
 					},*/
 					{
 						field : 'svnRepoName',
-						title : 'SVN仓库名',
+						title : 'SVN产品仓库名',
 						align : 'center'
 					},
 					{
 						field : 'svnRepoPath',
-						title : 'SVN仓库路径',
+						title : 'SVN产品仓库路径',
 						align : 'center'
 					},
 					{
 						field : 'svnRepoUrl',
-						title : 'SVN仓库URL',
+						title : 'SVN产品仓库URL',
 						align : 'center'
 					},
 /*					{
 						field : 'svnRepoDes',
-						title : 'SVN仓库描述',
+						title : 'SVN产品仓库描述',
 						align : 'center'
 					},*/
 					{
 						field : 'svnTrunk',
-						title : 'SVN分支基线',
+						title : 'SVN批次分支基线',
 						align : 'center'
 					},
 					{
 						field : 'newBranch',
-						title : 'SVN新分支',
+						title : 'SVN批次新分支',
 						align : 'center'
 					},
 					{
 						field : 'createBranchComment',
-						title : 'SVN新建分支备注信息',
+						title : 'SVN批次新分支备注信息',
 						align : 'center'
 					},
 					{
@@ -120,10 +122,10 @@ function load() {
 							var e = '<a  class="btn btn-primary btn-sm ' + s_edit_h + '" href="#" mce_href="#" title="编辑" onclick="edit(\''
 								+ row.id
 								+ '\')"><i class="fa fa-edit"></i></a> ';
-							var d = '<a class="btn btn-warning btn-sm ' + s_remove_h + '" href="#" title="删除"  mce_href="#" onclick="remove(\''
+/*							var d = '<a class="btn btn-warning btn-sm ' + s_remove_h + '" href="#" title="删除"  mce_href="#" onclick="remove(\''
 								+ row.id
-								+ '\')"><i class="fa fa-remove"></i></a> ';
-							return e + d;
+								+ '\')"><i class="fa fa-remove"></i></a> ';*/
+							return e;
 						}
 					} ]
 			});
@@ -137,7 +139,7 @@ function add() {
 	// iframe层
 	layer.open({
 		type : 2,
-		title : '新建SVN分支',
+		title : '新建SVN批次分支',
 		maxmin : true,
 		shadeClose : false, // 点击遮罩关闭层
 		area : [ '900px', '720px' ],
@@ -148,7 +150,7 @@ function add() {
 function edit(id) {
 	layer.open({
 		type : 2,
-		title : '修改SVN新建分支信息',
+		title : '修改SVN批次分支',
 		maxmin : true,
 		shadeClose : false,
 		area : [ '900px', '720px' ],

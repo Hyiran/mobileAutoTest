@@ -1,6 +1,7 @@
 package com.bmtc.device.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 
 /**
@@ -13,6 +14,8 @@ public class Robot implements Serializable{
 	private static final long serialVersionUID = 8849744292040280450L;
 	//appium服务uri
 	private String url;
+	//设备类型
+	private String platformName;
 	//测试设备udid
 	private String udid;
 	//测试设备版本
@@ -22,9 +25,13 @@ public class Robot implements Serializable{
 	//IOS: webdriverAgent 端口 
 	private int wdaLocalPort;
 	//测试用例名称
-	private String caseName;
-	//测试套路径
-	private String testSuite;
+	private List<String> caseNames;
+	//测试套名称
+	private List<String> suiteNames;
+	//测试标签名称
+	private List<String> tagNames;
+	//测试脚本路径
+	private String scriptPath;
 	//rf log路径
 	private String log;
 	
@@ -33,6 +40,12 @@ public class Robot implements Serializable{
 	}
 	public void setUrl(String host, int port) {
 		this.url = "http://" + host + ":" + port + "/wd/hub";
+	}
+	public String getPlatformName() {
+		return platformName;
+	}
+	public void setPlatformName(String platformName) {
+		this.platformName = platformName;
 	}
 	public String getUdid() {
 		return udid;
@@ -52,24 +65,35 @@ public class Robot implements Serializable{
 	public void setSystemPort(int systemPort) {
 		this.systemPort = systemPort;
 	}
-
 	public int getWdaLocalPort() {
 		return wdaLocalPort;
 	}
 	public void setWdaLocalPort(int wdaLocalPort) {
 		this.wdaLocalPort = wdaLocalPort;
 	}
-	public String getCaseName() {
-		return caseName;
+	public List<String> getCaseNames() {
+		return caseNames;
 	}
-	public void setCaseName(String caseName) {
-		this.caseName = caseName;
+	public void setCaseNames(List<String> caseNames) {
+		this.caseNames = caseNames;
 	}
-	public String getTestSuite() {
-		return testSuite;
+	public List<String> getSuiteNames() {
+		return suiteNames;
 	}
-	public void setTestSuite(String testSuite) {
-		this.testSuite = testSuite;
+	public void setSuiteNames(List<String> suiteNames) {
+		this.suiteNames = suiteNames;
+	}
+	public List<String> getTagNames() {
+		return tagNames;
+	}
+	public void setTagNames(List<String> tagNames) {
+		this.tagNames = tagNames;
+	}
+	public String getScriptPath() {
+		return scriptPath;
+	}
+	public void setScriptPath(String scriptPath) {
+		this.scriptPath = scriptPath;
 	}
 	public String getLog() {
 		return log;
@@ -77,14 +101,14 @@ public class Robot implements Serializable{
 	public void setLog(String log) {
 		this.log = log;
 	}
-	
 	@Override
 	public String toString() {
-		return "Robot [url=" + url + ", udid=" + udid + ", verison=" + verison
-				+ ", systemPort=" + systemPort + ", wdaLocalPort="
-				+ wdaLocalPort + ", caseName=" + caseName + ", testSuite="
-				+ testSuite + ", log=" + log + "]";
+		return "Robot [url=" + url + ", platformName=" + platformName
+				+ ", udid=" + udid + ", verison=" + verison + ", systemPort="
+				+ systemPort + ", wdaLocalPort=" + wdaLocalPort
+				+ ", caseNames=" + caseNames + ", suiteNames=" + suiteNames
+				+ ", tagNames=" + tagNames + ", scriptPath=" + scriptPath
+				+ ", log=" + log + "]";
 	}
-	
 }
 

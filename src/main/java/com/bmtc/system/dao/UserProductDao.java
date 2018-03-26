@@ -24,4 +24,7 @@ public interface UserProductDao {
 	
 	//查询用户对应的所有产品id
 	Long[] listAllDept();
+	
+	//通过产品id获取所对应的用户id
+	List<Long> getUserIdByDeptId(Long userId);
 }

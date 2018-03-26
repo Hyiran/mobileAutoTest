@@ -3,7 +3,6 @@ package com.bmtc.system.service;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.bmtc.common.domain.Tree;
 import com.bmtc.system.domain.DeptDO;
@@ -42,7 +41,7 @@ public interface UserService {
 	//判断用户是否存在
 	boolean exist(Map<String, Object> params) throws MalformedURLException;
 	
-	//重置密码
+	//管理员重置密码
 	int resetPwd(UserDO userDO) throws Exception;
 	
 	//获取产品机构表数据
@@ -59,4 +58,10 @@ public interface UserService {
 	
 	//查询用户对应的所有产品id
 	Long[] listAllDept();
+	
+	//通过用户id 批量查询用户对象
+	List<UserDO> getUsers(List<Long> ids);
+	//用户重置密码
+	int resetPassword(UserVO userVO,UserDO userDO) throws Exception;
+
 }

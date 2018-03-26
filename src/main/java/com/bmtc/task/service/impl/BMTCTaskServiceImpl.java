@@ -10,10 +10,12 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.bmtc.common.domain.Tree;
 import com.bmtc.common.utils.BuildTree;
 import com.bmtc.common.utils.Query;
+import com.bmtc.common.utils.R;
 import com.bmtc.common.utils.ShiroUtils;
 import com.bmtc.device.service.TestCaseService;
 import com.bmtc.script.dao.ScriptDao;
@@ -22,9 +24,11 @@ import com.bmtc.system.domain.UserDO;
 import com.bmtc.system.service.DeptService;
 import com.bmtc.system.service.UserService;
 import com.bmtc.task.dao.BMTCTaskDao;
-import com.bmtc.task.dao.TaskScriptDao;
+import com.bmtc.task.dao.ExecutePlanDao;
 import com.bmtc.task.domain.BMTCTask;
+import com.bmtc.task.domain.ExecutePlan;
 import com.bmtc.task.service.BMTCTaskService;
+import com.bmtc.task.service.ManualCaseService;
 
 /**
  * 测试任务service实现类
@@ -40,7 +44,7 @@ public class BMTCTaskServiceImpl implements BMTCTaskService {
 	@Autowired
 	BMTCTaskDao bMTCTaskMapper;
 	@Autowired
-	TaskScriptDao taskScriptMapper;
+	ExecutePlanDao executePlanMapper;
 	@Autowired
 	ScriptDao scriptMapper;
 	@Autowired
@@ -49,6 +53,8 @@ public class BMTCTaskServiceImpl implements BMTCTaskService {
 	UserService userService;
 	@Autowired
 	TestCaseService testCaseService;
+	@Autowired
+	ManualCaseService manualCaseService;
 
 	/**
 	 * 查询测试任务数据
@@ -63,7 +69,9 @@ public class BMTCTaskServiceImpl implements BMTCTaskService {
 		UserDO user = ShiroUtils.getUser();
 		// 判断是否为超级管理员
 		List<BMTCTask> tasks = new ArrayList<BMTCTask>();
-		if(user.getUsername() != null && "admin".equals(user.getUsername())){
+		// 不查询已经被删除的记录
+		params.put("isDeleted", 1l);
+		if(user.getUsername() != null && "sysAdmin".equals(user.getUsername())){
 			// 如果是，查询所有
 			tasks = bMTCTaskMapper.list(params);
 			logger.info("BMTCTaskServiceImpl.list() end");
@@ -90,6 +98,8 @@ public class BMTCTaskServiceImpl implements BMTCTaskService {
 	@Override
 	public int count(Query query) {
 		logger.info("BMTCTaskServiceImpl.count() start");
+		// 不查询已经被删除的记录
+		query.put("isDeleted", 1l);
 		int count = bMTCTaskMapper.count(query);
 		logger.info("BMTCTaskServiceImpl.count() end");
 		return count;
@@ -104,9 +114,22 @@ public class BMTCTaskServiceImpl implements BMTCTaskService {
 	@Override
 	public int batchremove(Long[] taskIds) {
 		logger.info("BMTCTaskServiceImpl.batchremove() start");
-		int status = bMTCTaskMapper.batchRemove(taskIds);
+		for (Long taskId : taskIds) {
+			// 通过taskid查询此测试任务是否存在关联的执行计划
+			List<ExecutePlan> executePlan = executePlanMapper.getExecutePlanByTaskId(taskId);
+			// 判断结果集元素个数是否为0
+			if(executePlan.size() != 0) {// 不为0，表示还有关联的执行计划
+				logger.error("测试任务还有关联的执行计划，请先删除关联的执行计划。");
+				return -1;
+			}
+			int remove = bMTCTaskMapper.remove(0l, taskId);
+			if(remove <= 0) {// 失败
+				logger.info("BMTCTaskServiceImpl.batchremove() end");
+				return 0;
+			}
+		}
 		logger.info("BMTCTaskServiceImpl.batchremove() end");
-		return status;
+		return 1;
 	}
 
 	/**
@@ -119,6 +142,10 @@ public class BMTCTaskServiceImpl implements BMTCTaskService {
 	public BMTCTask get(Long taskId) {
 		logger.info("BMTCTaskServiceImpl.get() start");
 		BMTCTask bmtcTask = bMTCTaskMapper.get(taskId);
+		if(bmtcTask.getIsDeleted() == 0) {
+			logger.info("BMTCTaskServiceImpl.get() end");
+			return null;
+		}
 		logger.info("BMTCTaskServiceImpl.get() end");
 		return bmtcTask;
 	}
@@ -132,6 +159,7 @@ public class BMTCTaskServiceImpl implements BMTCTaskService {
 	@Override
 	public boolean exist(Map<String, Object> params) {
 		logger.info("BMTCTaskServiceImpl.exist() start");
+		params.put("isDeleted", 1l);
 		List<BMTCTask> list = bMTCTaskMapper.list(params);
 		if (list.size() == 0) {
 			// 不存在
@@ -151,8 +179,18 @@ public class BMTCTaskServiceImpl implements BMTCTaskService {
 	 * @return int
 	 */
 	@Override
-	public int save(BMTCTask bmtcTask) {
+	public R save(BMTCTask bmtcTask,MultipartFile file) {
 		logger.info("BMTCTaskServiceImpl.save() start");
+		// 判断上传手工案例文件是否为空
+		String  fileName = file.getOriginalFilename();
+		bmtcTask.setIsDeleted(1l);
+		if (fileName == null || "".equals(fileName)) {
+			return R.error("请选择要上传的文件！");
+		}
+		// 判断上传的是否为Excel文件
+		if (!manualCaseService.validateExcel(fileName)) {
+			return R.error("请上传有效的Excel文件");
+		}
 		// 创建人
 		if (bmtcTask.getCreatedId() == null) {
 			bmtcTask.setCreatedId(ShiroUtils.getUser().getUserId());
@@ -167,8 +205,17 @@ public class BMTCTaskServiceImpl implements BMTCTaskService {
 		bmtcTask.setGmtModified(date);
 		// 保存测试任务
 		int count = bMTCTaskMapper.save(bmtcTask);
+		// 判断测试任务是否保存成功
+		if(count <= 0) {
+			return R.error("测试任务保存失败！");
+		}
+		Long taskId = bmtcTask.getTaskId();
+		// 判断是否保存成功
+		if (manualCaseService.save(file,taskId) == 1) {
+			return R.error(1, "上传文件内容不符,请检查文件");
+		}
 		logger.info("BMTCTaskServiceImpl.save() end");
-		return count;
+		return R.ok("创建成功！");
 	}
 
 	/**
@@ -178,16 +225,33 @@ public class BMTCTaskServiceImpl implements BMTCTaskService {
 	 * @return int
 	 */
 	@Override
-	public int update(BMTCTask bMTCTask) {
+	public R update(BMTCTask bMTCTask,MultipartFile file) {
 		logger.info("BMTCTaskServiceImpl.update() start");
+		// 判断上传手工案例文件是否为空
+		String  fileName = file.getOriginalFilename();
+		if (fileName == null || "".equals(fileName)) {
+			return R.error("请选择要上传的文件！");
+		}
+		// 判断上传的是否为Excel文件
+		if (!manualCaseService.validateExcel(fileName)) {
+			return R.error("请上传有效的Excel文件");
+		}
 		// 获取现在时间
 		Date date = new Date(System.currentTimeMillis());
 		// 设置修改时间
 		bMTCTask.setGmtModified(date);
 		// 修改测试任务
 		int count = bMTCTaskMapper.update(bMTCTask);
+		if(count <= 0) {
+			return R.error("测试任务修改失败！");
+		}
+		Long taskId = bMTCTask.getTaskId();
+		// 判断是否保存成功
+		if (manualCaseService.save(file,taskId) == 1) {
+			return R.error(1, "上传文件内容不符,请检查文件");
+		}
 		logger.info("BMTCTaskServiceImpl.update() end");
-		return count;
+		return R.ok("修改成功");
 	}
 
 	
@@ -201,8 +265,15 @@ public class BMTCTaskServiceImpl implements BMTCTaskService {
 	@Override
 	public int remove(Long taskId) {
 		logger.info("BMTCTaskServiceImpl.remove() start");
+		// 通过taskid查询此测试任务是否存在关联的执行计划
+		List<ExecutePlan> executePlan = executePlanMapper.getExecutePlanByTaskId(taskId);
+		// 判断结果集元素个数是否为0
+		if(executePlan.size() != 0) {// 不为0，表示还有关联的执行计划
+			logger.error("测试任务还有关联的执行计划，请先删除关联的执行计划。");
+			return -1;
+		}
 		// 删除测试任务
-		int count = bMTCTaskMapper.remove(taskId);
+		int count = bMTCTaskMapper.remove(0l,taskId);
 		logger.info("BMTCTaskServiceImpl.remove() end");
 		return count;
 	}
@@ -218,7 +289,9 @@ public class BMTCTaskServiceImpl implements BMTCTaskService {
 		// 创建一个list集合，存储节点数据
 		List<Tree<BMTCTask>> trees = new ArrayList<Tree<BMTCTask>>();
 		// 获取测试任务数据
-		List<BMTCTask> taskList = list(new HashMap<String, Object>());
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("isDeleted", 1l);
+		List<BMTCTask> taskList = list(map);
 		// 遍历测试任务
 		for (BMTCTask bmtcTask : taskList) {
 			// 创建一个节点对象
@@ -254,7 +327,7 @@ public class BMTCTaskServiceImpl implements BMTCTaskService {
 		// 获得用户所属的产品
 		UserDO user = ShiroUtils.getUser();
 		List<DeptDO> depts = new ArrayList<DeptDO>();
-		if("admin".equals(user.getUsername())){
+		if("sysAdmin".equals(user.getUsername())){
 			Tree<DeptDO> tree = deptService.getTree();
 			logger.info("BMTCTaskServiceImpl.getDeptTree() end");
 			return tree;

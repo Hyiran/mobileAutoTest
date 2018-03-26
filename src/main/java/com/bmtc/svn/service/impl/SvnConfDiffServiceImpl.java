@@ -75,8 +75,9 @@ public class SvnConfDiffServiceImpl implements SvnConfDiffService {
 	 * @throws Exception 
 	 */
 	@Override
-	@Scheduled(cron="0 0 2,13 * * ?") // 每天凌晨2点和中午13点定时更新
-	// @Scheduled(cron="0 0/3 * * * ?") // 每天隔3分钟定时更新
+	// @Scheduled(cron = "0 0 2,13 * * ?") // 每天凌晨2点和中午13点定时更新
+	// @Scheduled(cron = "0 0/3 * * * ?") // 每天隔3分钟定时更新
+	@Scheduled(cron = "${bmtc.svnConfDiffSchedule}") // 每天凌晨2点和中午13点定时更新
 	public int save() throws Exception {
 		logger.info("SvnConfDiffServiceImpl.save() start");
 		

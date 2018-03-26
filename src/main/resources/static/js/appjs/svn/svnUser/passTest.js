@@ -64,7 +64,7 @@ function validateRule() {
 		},
 		messages : {
 			svnRepoName : {
-				required : icon + "请输入需要测试联通性的SVN仓库名"
+				required : icon + "请输入需要测试联通性的SVN产品仓库名"
 			},
 			svnRepoUrl : {
 				required : icon + "请输入需要测试联通性的SVN仓库URL"

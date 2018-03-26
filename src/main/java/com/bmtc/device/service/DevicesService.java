@@ -31,4 +31,6 @@ public interface DevicesService {
 	 */
 	public Device getIOSInfoByUdid(String udid);
 	
+	public void androidInit(String udid);
+	
 }

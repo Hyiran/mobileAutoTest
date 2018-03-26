@@ -21,6 +21,8 @@ public class Script implements Serializable{
 	private Long scriptId;
 	// 脚本名称
 	private String scriptName;
+	// 产品名称
+	private Long deptId;
 	// 标签
 	private String tag;
 	// 测试套路径
@@ -53,6 +55,12 @@ public class Script implements Serializable{
 	}
 	public void setScriptName(String scriptName) {
 		this.scriptName = scriptName;
+	}
+	public Long getDeptId() {
+		return deptId;
+	}
+	public void setDeptId(Long deptId) {
+		this.deptId = deptId;
 	}
 	public String getTag() {
 		return tag;

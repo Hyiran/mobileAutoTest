@@ -113,13 +113,6 @@ function load() {
 						field : 'deviceType',
 						title : '执行设备',
 						align : 'center',
-						formatter : function(value, row, index) {
-							if (value == '0') {
-								return '<span>Android</span>';
-							} else if (value == '1') {
-								return '<span>IOS</span>';
-							}
-						}
 					},
 					{
 						title : '操作',
@@ -146,7 +139,7 @@ function reLoad() {
 function showScript(id) {
 	layer.open({
 		type : 2,
-		title : '关联场景',
+		title : '关联脚本',
 		maxmin : true,
 		shadeClose : false, // 点击遮罩关闭层
 		area : [ '600px', '620px' ],
@@ -157,7 +150,7 @@ function add() {
 	// iframe层
 	var addHtml = layer.open({
 		type : 2,
-		title : '添加任务',
+		title : '添加执行计划',
 		maxmin : true,
 		shadeClose : false, // 点击遮罩关闭层
 		area : [ '800px', '520px' ],
@@ -204,7 +197,8 @@ function active(id) {
 		data : {
 			"id" : id
 		},
-		url : prefix + '/active',
+//		url : prefix + '/active',
+		url : prefix + '/sendToATP',
 		success : function(r) {
 			layer.msg(r);
 			reLoad();

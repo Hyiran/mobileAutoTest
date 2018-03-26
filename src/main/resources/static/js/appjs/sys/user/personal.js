@@ -36,7 +36,7 @@ $("#pwd_save").click(function () {
         $.ajax({
             cache : true,
             type : "POST",
-            url :"/sys/user/resetPwd",
+            url :"/sys/user/resetPassword",
             data : $('#modifyPwd').serialize(),
             async : false,
             error : function(request) {

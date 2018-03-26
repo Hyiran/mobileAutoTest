@@ -12,8 +12,10 @@ import com.bmtc.common.utils.R;
 import com.bmtc.system.domain.DeptDO;
 import com.bmtc.system.domain.RoleDO;
 import com.bmtc.system.domain.UserDO;
+import com.bmtc.system.service.DeptService;
 import com.bmtc.system.service.RoleService;
 import com.bmtc.system.service.UserService;
+import com.bmtc.system.vo.UserVO;
 
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
@@ -41,6 +43,8 @@ public class UserController extends BaseController {
 	RoleService roleService;
 	@Autowired
 	DictService dictService;
+	@Autowired
+	DeptService deptService;
 	
 	@RequiresPermissions("sys:user:user")
 	@Log("跳转到用户界面")
@@ -53,13 +57,23 @@ public class UserController extends BaseController {
 	@Log("查询列表数据")
 	@ResponseBody
 	PageUtils list(@RequestParam Map<String, Object> params) {
-		logger.info("UserController.list() start");
+	logger.info("UserController.list() start");
 		Query query = new Query(params);
-		List<UserDO> sysUserList = userService.list(query);
-		int total = userService.count(query);
-		PageUtils pageUtil = new PageUtils(sysUserList, total);
+		PageUtils pageUtil = null ;
+		if (query.get("deptId") == null || "".equals(query.get("deptId"))) {
+			List<UserDO> sysUserList = userService.list(query);
+			int total = userService.count(query);
+			pageUtil = new PageUtils(sysUserList, total);
+		}else{
+			List<Long> userIdByDeptId = deptService.getUserIdByDeptId(
+					Long.parseUnsignedLong(query.get("deptId").toString()));
+			List<UserDO> users = userService.getUsers(userIdByDeptId);
+			int total = users.size();
+			pageUtil = new PageUtils(users, total);
+		}
+		
 		logger.info("UserController.list() end");
-		return pageUtil;
+		return pageUtil; 
 	}
 
 	@RequiresPermissions("sys:user:add")
@@ -81,10 +95,13 @@ public class UserController extends BaseController {
 		UserDO userDO = userService.get(id);
 		List<DeptDO> products = userService.getProductsByUserId(id);
 		String deptName = "";
+		String deptIds = "";
 		for (DeptDO deptDO : products) {
 			deptName += deptDO.getName() + "  ";
+			deptIds += deptDO.getDeptId() + ",";
 		}
 		userDO.setDeptName(deptName);
+		userDO.setDeptIds(deptIds);
 		model.addAttribute("user", userDO);
 		List<RoleDO> roles = roleService.list(id);
 		model.addAttribute("roles", roles);
@@ -174,7 +191,6 @@ public class UserController extends BaseController {
 	}
 
 
-	@RequiresPermissions("sys:user:edit")
 	@Log("更新用户个人资料")
 	@PostMapping("/updatePeronal")
 	@ResponseBody
@@ -239,7 +255,7 @@ public class UserController extends BaseController {
 		return prefix + "/reset_pwd";
 	}
 
-	@Log("提交更改用户密码")
+	@Log("管理员提交更改用户密码")
 	@PostMapping("/resetPwd")
 	@ResponseBody
 	R resetPwd(UserDO user) {
@@ -250,6 +266,24 @@ public class UserController extends BaseController {
 		try{
 			userService.resetPwd(user);
 			logger.info("UserController.resetPwd() end");
+			return R.ok();
+		}catch (Exception e){
+			return R.error(1,e.getMessage());
+		}
+
+	}
+	
+	@Log("用户提交更改用户密码")
+	@PostMapping("/resetPassword")
+	@ResponseBody
+	R resetPassword(UserVO userVO) {
+		logger.info("UserController.resetPassword() start");
+		if (Constant.DEMO_ACCOUNT.equals(getUsername())) {
+			return R.error(1, "演示系统不允许修改,完整体验请部署程序");
+		}
+		try{
+			userService.resetPassword(userVO,getUser());
+			logger.info("UserController.resetPassword() end");
 			return R.ok();
 		}catch (Exception e){
 			return R.error(1,e.getMessage());

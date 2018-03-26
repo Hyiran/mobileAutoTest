@@ -9,7 +9,8 @@ public class Device implements Serializable{
 	private String name;
 	private String resolution;
 	private String status;
-	
+	private String platformName;
+	private String ip;
 	
 	public String getUdid() {
 		return udid;
@@ -41,10 +42,22 @@ public class Device implements Serializable{
 	public void setStatus(String status) {
 		this.status = status;
 	}
+	public String getPlatformName() {
+		return platformName;
+	}
+	public void setPlatformName(String platformName) {
+		this.platformName = platformName;
+	}
+	public String getIp() {
+		return ip;
+	}
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
 	@Override
 	public String toString() {
 		return "Device [udid=" + udid + ", verison=" + verison + ", name="
 				+ name + ", resolution=" + resolution + ", status=" + status
-				+ "]";
+				+ ", platformName=" + platformName + ", ip=" + ip + "]";
 	}
 }

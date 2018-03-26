@@ -10,7 +10,7 @@
 								class="hidden">
  				<form id="searchSvnTrunk">
 					<input type="search" id="svnTrunk" class="bmtcSvnPathSearch-control"
-							   placeholder="SVN基线"/>
+							   placeholder="SVN基线最后一级目录名"/>
 					<button type="submit" class="btn btn-success">搜索</button>
 				</form>
 				<div class="ibox-content">
@@ -83,7 +83,7 @@
 				}
 				parent.loadSvnTrunk(svnUrl);
 				svnTrunk = data.node.text;
-				var con = confirm("获取svn目录树形结构失败，请先给超级用户开通相应仓库的根目录读写权限");
+				var con = confirm("获取svn目录树形结构失败，请先给超级用户开通相应产品仓库的根目录读写权限");
 			} else if(data.node.id == -1) {
 				svnUrl = data.node.text;
 				if(!svnUrl.endsWith("/")) {

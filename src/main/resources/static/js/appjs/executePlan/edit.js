@@ -3,6 +3,7 @@ $(document).ready(function() {
 	$("#trigger").hide();
 	$("#part1").show();
 	$("#part2").hide();
+	$("#caseNumDiv").hide();
 	var testSuiteCaseNames = '';
 	validateRule();
 });
@@ -24,19 +25,19 @@ function update() {
 		},
 		success : function(data) {
 			if (data.code == 0) {
-				parent.layer.msg("操作成功");
+				parent.layer.msg(data.msg);
 				parent.reLoad();
 				var index = parent.layer.getFrameIndex(window.name); // 获取窗口索引
 				parent.layer.close(index);
+			} else if(data.code == 2) {
+				layer.alert("部分案例caseNum有误！");
+				$("#caseNumDiv").show();
+				$('#caseNum').html(data.msg);
 			} else {
-				parent.layer.alert(data.msg)
-				var index = parent.layer.getFrameIndex(window.name); // 获取窗口索引
-				parent.layer.close(index);
+				parent.layer.alert(data.msg);
 			}
-
 		}
 	});
-
 }
 function validateRule() {
 	var icon = "<i class='fa fa-times-circle'></i> ";

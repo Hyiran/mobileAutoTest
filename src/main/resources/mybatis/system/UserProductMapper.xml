@@ -30,6 +30,11 @@
 		sys_user_product where user_id = #{value}
 	</select> 
 	
+	 <select id="getUserIdByDeptId" resultType="long">
+		select `user_id` from
+		sys_user_product where dept_id = #{value}
+	</select>
+	
 	<select id="listAllDept" resultType="long">
 				select DISTINCT dept_id from sys_user_product
 	</select>

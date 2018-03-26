@@ -36,6 +36,8 @@ public class BMTCTask implements Serializable{
 	private Long createdId;
 	// 状态
 	private Long status;
+	// 状态(逻辑删除标记:1,存在；0:删除)
+	private Long isDeleted;
 	// 创建时间
 	private Date gmtCreate;
 	// 修改时间
@@ -127,6 +129,12 @@ public class BMTCTask implements Serializable{
 	}
 	public void setBatchSvnPath(String batchSvnPath) {
 		this.batchSvnPath = batchSvnPath;
+	}
+	public Long getIsDeleted() {
+		return isDeleted;
+	}
+	public void setIsDeleted(Long isDeleted) {
+		this.isDeleted = isDeleted;
 	}
 	/**
 	 * toString

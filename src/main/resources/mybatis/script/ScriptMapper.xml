@@ -5,6 +5,7 @@
 	<resultMap type="com.bmtc.script.domain.Script" id = "rScript">
 		<id property = "scriptId" column = "script_id"/>
 		<result property = "scriptName" column = "script_name" />
+		<result property = "deptId" column = "dept_id" />
 		<result property = "tag" column = "tag" />
 		<result property = "testSuitPath" column = "test_suit_path" />
 		<result property = "testCaseInfo" column = "test_case_info" />
@@ -16,6 +17,7 @@
 		select
 		`script_id`,
 		`script_name`,
+		`dept_id`,
 		`tag`,
 		`test_suit_path`,
 		`test_case_info`,
@@ -30,6 +32,7 @@
 		select
 		`script_id`,
 		`script_name`,
+		`dept_id`,
 		`tag`,
 		`test_suit_path`,
 		`test_case_info`,
@@ -44,6 +47,7 @@
 		select
 		`script_id`,
 		`script_name`,
+		`dept_id`,
 		`tag`,
 		`test_suit_path`,
 		`test_case_info`,
@@ -53,6 +57,7 @@
 		<where>
 			<if test="scriptId != null and scriptId != ''"> and script_id = #{scriptId} </if>
 			<if test="scriptName != null and scriptName != ''"> and script_name = #{scriptName} </if>
+			<if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
 			<if test="tag != null and tag != ''"> and tag = #{tag} </if>
 			<if test="testSuitPath != null and testSuitPath != ''"> and test_suit_path = #{testSuitPath} </if>
 			<if test="updateUserId != null and updateUserId != ''"> and last_modified = #{updateUserId} </if>
@@ -77,6 +82,7 @@
 		<where>
 			<if test="scriptId != null and scriptId != ''"> and script_id = #{scriptId} </if>
 			<if test="scriptName != null and scriptName != ''"> and script_name = #{scriptName} </if>
+			<if test="deptId != null and deptId != ''"> and dept_id = #{deptId} </if>
 			<if test="tag != null and tag != ''"> and tag = #{tag} </if>
 			<if test="testSuitPath != null and testSuitPath != ''"> and test_suit_path = #{testSuitPath} </if>
 			<if test="updateUserId != null and updateUserId != ''"> and last_modified = #{updateUserId} </if>
@@ -90,6 +96,7 @@
 		insert into test_script
 		(
 		`script_name`,
+		`dept_id`,
 		`tag`,
 		`test_suit_path`,
 		`test_case_info`,
@@ -99,6 +106,32 @@
 		values
 		(
 		#{scriptName},
+		#{deptId},
+		#{tag},
+		#{testSuitPath},
+		#{testCaseInfo},
+		#{updateUserId},
+		#{gmtModified}
+		)
+	</insert>
+	<insert id="insert" parameterType="com.bmtc.script.domain.Script"
+		keyProperty="scriptId">
+		insert into test_script
+		(
+		`script_id`,
+		`script_name`,
+		`dept_id`,
+		`tag`,
+		`test_suit_path`,
+		`test_case_info`,
+		`last_modified`,
+		`gmt_modified`
+		)
+		values
+		(
+		#{scriptId},
+		#{scriptName},
+		#{deptId},
 		#{tag},
 		#{testSuitPath},
 		#{testCaseInfo},
@@ -111,6 +144,7 @@
 		update test_script
 		<set>
 			<if test="scriptName != null">`script_name` = #{scriptName}, </if>
+			<if test="deptId != null">`dept_id` = #{tadeptIdg}, </if>
 			<if test="tag != null">`tag` = #{tag}, </if>
 			<if test="testSuitPath != null">`test_suit_path` = #{testSuitPath}, </if>
 			<if test="testCaseInfo != null">`test_case_info` = #{testCaseInfo}, </if>
@@ -123,6 +157,13 @@
 	<delete id="remove">
 		delete from test_script where script_id = #{value}
 	</delete>
+	<delete id="removeByDeptId">
+		delete from test_script where dept_id = #{deptId}
+	</delete>
+
+	<select id="getMaxId" resultType="long">
+		SELECT MAX(script_id) FROM test_script
+	</select>
 
 	<delete id="batchRemove">
 		delete from test_script where script_id in

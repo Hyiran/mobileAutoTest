@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.bmtc.svn.domain.SvnCreateBranch;
 import com.bmtc.svn.domain.SvnCreateBranchInfo;
@@ -32,6 +33,9 @@ public interface SvnCreateBranchDao {
 	
 	// 通过svn仓库名查询svn新建分支信息
 	SvnCreateBranchInfo getSvnCreateBranchInfo(String svnRepoName);
+	
+	// 通过产品id和批次id查询svn新建分支信息
+	List<SvnCreateBranchInfo> getBranchInfoByDeptIdAndBatchId(@Param("deptId") Long deptId, @Param("batchId") Long batchId);
 	
 	// 通过svn仓库id、svn新建分支基线、svn需要新建的分支查询svn新建分支信息
 	SvnCreateBranchInfo querySvnCreateBranchInfo(SvnCreateBranch svnCreateBranch);

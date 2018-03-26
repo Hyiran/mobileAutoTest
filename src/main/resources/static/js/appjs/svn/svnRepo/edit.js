@@ -67,13 +67,13 @@ function validateRule() {
 		},
 		messages : {
 			svnRepoName : {
-				required : icon + "请输入SVN仓库名"
+				required : icon + "请输入SVN产品仓库名"
 			},
 			svnRepoPath : {
-				required : icon + "请输入SVN仓库路径"
+				required : icon + "请输入SVN产品仓库路径"
 			},
 			svnRepoUrl : {
-				required : icon + "请输入SVN仓库URL (eg. svn://22.11.31.40/BMTC)"
+				required : icon + "请输入SVN产品仓库URL (eg. svn://22.11.31.40/BMTC)"
 			}
 		}
 	});
@@ -83,7 +83,7 @@ function validateRule() {
 $.validator.addMethod("checkSvnRepoName",function(value,element){
 	var checkSvnRepoName = /^[0-9a-zA-Z]+$/;
 	return this.optional(element) || (checkSvnRepoName.test(value));
-},"svn仓库名不能包含特殊字符");
+},"svn产品仓库名不能包含特殊字符");
 
 
 //校验svn的url

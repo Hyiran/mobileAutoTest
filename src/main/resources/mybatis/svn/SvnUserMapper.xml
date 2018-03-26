@@ -129,10 +129,13 @@
 	<select id="count" resultType="java.lang.Integer" >
 		select count(*) 
 		from svn_repo a join svn_user b on (a.svn_repo_id = b.svn_repo_id) 
-	    join sys_user c on (b.svn_user_name = c.username)
+	    left join sys_user c on (b.svn_user_name = c.username)
 	    <where>
 		    <if test="svnRepoName != null and svnRepoName != ''">
 				and a.svn_repo_name = #{svnRepoName}
+			</if>
+			<if test="name != null and name != ''">
+				and c.name = #{name}
 			</if>
 			<if test="svnUserName != null and svnUserName != ''">
 				and b.svn_user_name like concat('%', #{svnUserName}, '%')
@@ -148,10 +151,13 @@
 	    b.user_status, b.svn_user_create_date, b.svn_user_modify_date, 
 	    c.name
 	    from svn_repo a join svn_user b on (a.svn_repo_id = b.svn_repo_id) 
-	    join sys_user c on (b.svn_user_name = c.username)
+	    left join sys_user c on (b.svn_user_name = c.username)
 	    <where>
 		    <if test="svnRepoName != null and svnRepoName != ''">
 				and a.svn_repo_name = #{svnRepoName}
+			</if>
+			<if test="name != null and name != ''">
+				and c.name = #{name}
 			</if>
 			<if test="svnUserName != null and svnUserName != ''">
 				and b.svn_user_name like concat('%', #{svnUserName}, '%')
@@ -162,7 +168,7 @@
 				order by ${sort} ${order}
 			</when>
 			<otherwise>
-				order by a.svn_repo_id
+				order by a.svn_repo_id desc
 			</otherwise>
 		</choose>
 	    <if test="offset != null and limit != null">
@@ -176,7 +182,7 @@
 	    svn_user_id, svn_user_name, svn_password,
 	    user_status, svn_user_create_date, svn_user_modify_date
 	    from svn_user
-	    where svn_repo_id = #{svnRepoId}
+	    where svn_repo_id = #{svnRepoId} and svn_user_name &lt;&gt; '*'
 	</select>
 	
 	

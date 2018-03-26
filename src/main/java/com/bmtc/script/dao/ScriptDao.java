@@ -24,6 +24,8 @@ public interface ScriptDao {
 	Script get(Long scriptId);
 	// 查询指定条件的脚本总记录数
 	int count(Map<String,Object> map);
+	// 插入脚本
+	int insert(Script script);
 	// 保存脚本
 	int save(Script script);
 	// 修改脚本
@@ -34,5 +36,9 @@ public interface ScriptDao {
 	int batchRemove(Long[] scriptIds);
 	// 通过测试套路径查询脚本信息
 	Script getScriptByTestSuitPath(String testSuitPath);
+	// 通过产品ID删除脚本
+	int removeByDeptId(Long deptId);
+	// 获得最大ID
+	Long getMaxId();
 	
 }

@@ -21,7 +21,7 @@
 					<div class="ibox-body">
 						<div class="fixed-table-toolbar">
 							<div class="columns pull-left">
-								<button  type="button"
+								<button  type="button" id="submit"
 									class="btn  btn-primary" onclick="update()">
 									<i class="fa fa-plus hidden" aria-hidden="true"></i>同步
 								</button>
@@ -32,8 +32,9 @@
 
 							<div class="columns pull-right col-md-2 nopadding">
 								<input id="searchName" type="text" class="form-control"
-									placeholder="产品名">
+									placeholder="产品名或团队部门名称">
 							</div>
+							<div class="columns pull-left" id="showLoading"></div>
 						</div>
 						<table id="exampleTable" data-mobile-responsive="true">
 						</table>

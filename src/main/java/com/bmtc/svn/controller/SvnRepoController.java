@@ -149,8 +149,8 @@ public class SvnRepoController extends BaseController {
 			logger.info("添加SVN仓库成功");	
 			return R.ok();
 		} else if (res == -6) {
-			logger.info("添加的svn仓库已写入数据库，但是创建远程svn仓库失败，需要手动创建!!!");	
-			return R.error(-1, "添加的svn仓库已写入数据库，但是创建远程svn仓库失败，需要手动创建!!!");
+			logger.info("添加的svn仓库已写入数据库，本次没有创建远程svn仓库");	
+			return R.error(-1, "添加的svn仓库已写入数据库，本次没有创建远程svn仓库");
 		} else {
 			logger.info("添加的svn仓库异常");	
 			return R.error(-1, "添加的svn仓库异常");

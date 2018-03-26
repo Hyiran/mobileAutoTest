@@ -23,7 +23,7 @@ public class SendSoapUtils {
 		executePlanVo.setCaseName("11");
 		executePlanVo.setScriptSVNPath("svn://22.11.31.36/automation_test/branches/801batch/BOC/Android/中银理财/产品购买和赎回/赎回.txt");
 		ProductSvn productSvn = new ProductSvn();
-		productSvn.setProductId(25);
+		productSvn.setProductId(25L);
 		productSvn.setProductName("CSAR");
 		productSvn.setUsername("wy_maxl");
 		productSvn.setPassword("123456");

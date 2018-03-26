@@ -102,7 +102,7 @@
 				order by ${sort} ${order}
 			</when>
 			<otherwise>
-				order by svn_repo_id
+				order by svn_repo_id desc
 			</otherwise>
 		</choose>
 	    <if test="offset != null and limit != null">

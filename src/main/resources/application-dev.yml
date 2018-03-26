@@ -1,27 +1,106 @@
 bmtc:
     uploadPath: D:/var/uploaded_files/
-    # 查询设备状态的接口地址
-    deviceInfoAdd : http://22.11.27.29/bmtc/all/android/info
-    # 执行测试计划的接口地址
-    executeAdd : http://22.11.27.29/bmtc/android/run/case
     # svn库地址的url
-    url : svn://22.11.31.36/automation_test/branches
+    url: svn://22.11.31.36/automation_test/branches
     # 下载脚本需要登录的用户名
-    username : wy_maxl
+    username: wy_maxl
     # 下载脚本需要登录的密码
-    password : 123456
+    password: 123456
     # 下载到本地的路径wcPath
-    localPath : /Users/Shared/testScriptData
+    localPath: /Users/Shared/testScriptData
     # svn配置文件(authz, passwd, svnserve.conf)在本地的存放位置
-    svnConfFilesLocation : /Users/bocmt004/.jenkins/workspace/BMTC/confFile
+    svnConfFilesLocation: /Users/bocmt004/.jenkins/workspace/BMTC/confFile
     # svn服务器的用户名
-    svnServerUserName : root
+    svnServerUserName: root
     # svn服务器登录口令
-    svnServerPassword : Pass_01!
+    svnServerPassword: Pass_01!
     # svn超级用户的用户名
-    svnRootUserName : admin
+    svnRootUserName: sysAdmin
     # 远程连接端口号
-    port : 22
+    port: 22
+    # 定时更新svn配置文件差异的cron表达式，每天凌晨2点和中午13点定时更新
+    svnConfDiffSchedule: 0 0 2,13 * * ?
+    #上传测试案例临时文件路径
+    uploadFile : /Users/Shared/testCaseDocument
+    #ATP bmtc wsdl接口的url
+    bmtcURL : http://22.188.48.106:9090/IFWebService/BMTC.asmx?wsdl
+    # #ATP bmtc wsdl接口的Qname参数
+    # javax.xml.namespace.QName.QName(String Qname1, String Qname2)
+    Qname1: BMTC
+    Qname2: BMTC
+    # 定时更新sys_organization表的cron表达式，每天凌晨2点和中午13点定时更新
+    updateOrganization: 0 0 2,13 * * ?
+    # 定时更新test_batch表的cron表达式，每天凌晨2点和中午13点定时更新
+    updateBatch: 0 0 2,13 * * ?
+android:
+    # Win平台,Anndorid:
+    # 设备唯一标识
+    deviceUdid : adb devices
+    # 设备版本
+    deviceVersion : adb -s udid shell getprop ro.build.version.release
+    # 设备分辨率
+    deviceResolution : adb -s udid shell wm size
+    # 设备型号
+    deviceModel : adb -s udid shell getprop ro.product.model
+    # 设备厂商
+    deviceBrand : adb -s udid shell getprop ro.product.manufacturer
+    # 设备状态
+    deviceStatus : cmd /c adb -s udid shell ps |findstr "io.appium.uiautomator"
+    # 强制退出bootstarp服务
+    devicesInit : cmd /c adb -s udid shell am force-stop io.appium.uiautomator
+    # Mac平台,Anndorid:
+    # 设备唯一标识
+    #deviceUdid : /usr/local/sdk/platform-tools/adb devices
+    # 设备版本
+    #deviceVersion : /usr/local/sdk/platform-tools/adb -s udid shell getprop ro.build.version.release
+    # 设备分辨率
+    #deviceResolution : /usr/local/sdk/platform-tools/adb -s udid shell wm size
+    # 设备型号
+    #deviceModel : /usr/local/sdk/platform-tools/adb -s udid shell getprop ro.product.model
+    # 设备厂商
+    #deviceBrand : /usr/local/sdk/platform-tools/adb -s udid shell getprop ro.product.manufacturer
+    # 设备状态
+    #deviceStatus : /usr/local/sdk/platform-tools/adb -s udid shell ps |grep "io.appium.uiautomator"
+    # 强制退出bootstarp服务
+    #devicesInit : /usr/local/sdk/platform-tools/adb -s udid shell am force-stop io.appium.uiautomator
+ios:
+    # IOS：
+    # 设备唯一标识
+    deviceUdid : /usr/local/bin/ios-deploy -c --no-wifi | awk '{if(NR!=1)print $3}'
+    # ios设备信息列表
+    deviceInfo : /usr/local/bin/ideviceinfo -u udid
+    # 设备版本
+    deviceVersion : /usr/local/bin/ideviceinfo -k ProductVersion -u udid
+    # 设备产品类型（ios设备类型唯一）
+    deviceProductType : /usr/local/bin/ideviceinfo -k ProductType -u udid
+    # 设备状态
+    deviceStatus : ps -ef |grep udid
+appium:
+    # Win平台：
+    # 本机IP地址
+    host : 127.0.0.1
+    # 测试脚本svn地址
+    workspace : e:/workspace/
+# Win平台：
+    # appium启动命令
+    startAppium : C:/Users/Administrator/AppData/Local/Programs/appium-desktop/resources/app/node_modules/appium/build/lib/main.js
+    # appium停止命令
+    stopAppium : cmd /c taskkill /pid PID /F
+    # appium进程
+    appiumPid : cmd /c netstat -ano | findstr PORT
+    # node启动命令
+    startNode : node
+    # 自动化测试log路径
+    autotestLog : d:/log
+    # robot framework 启动命令
+    startRF : pybot
+# Mac平台：
+    #startAppium : /usr/local/bin/appium
+    #stopAppium : kill -9 PID
+    #appiumPid : ps -ef |grep "port=PORT" | grep -v grep | awk '{print $2}'
+    #startNode : /usr/local/bin/node
+    #autotestLog : /tmp/log/
+    #startRF : /usr/local/bin/pybot
 logging:
   level:
     com.bmtc: debug

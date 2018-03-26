@@ -14,20 +14,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.tmatesoft.svn.core.SVNException;
 
 import com.bmtc.common.exception.BDException;
 import com.bmtc.common.utils.FileUtil;
+import com.bmtc.device.config.AppiumConfig;
 import com.bmtc.device.domain.Appium;
+import com.bmtc.device.domain.Device;
+import com.bmtc.device.domain.ExecuteParam;
 import com.bmtc.device.domain.Robot;
 import com.bmtc.device.domain.TestCase;
 import com.bmtc.device.domain.TestCaseTable;
 import com.bmtc.device.service.AppiumService;
+import com.bmtc.device.service.DevicesService;
 import com.bmtc.device.service.ExecuteDetailService;
 import com.bmtc.device.service.TestCaseService;
-import com.bmtc.device.utils.PropertiesUtils;
 import com.bmtc.device.utils.RobotUtils;
 import com.bmtc.device.utils.StreamWatch;
+import com.bmtc.script.domain.Script;
 import com.bmtc.svn.service.UpdateLocalCodeBySvnRepoService;
 import com.bmtc.task.domain.ExecuteDetail;
 import com.bmtc.task.domain.ProductSvn;
@@ -42,26 +45,45 @@ public class TestCaseServiceImpl implements TestCaseService {
 	private static final Logger logger = LoggerFactory.getLogger(TestCaseServiceImpl.class);
 	
 	@Autowired
+	private AppiumConfig appiumConfig;
+	@Autowired
 	private AppiumService appiumService;
+	@Autowired
+	private DevicesService devicesService;
 	@Autowired
 	private ExecuteDetailService executeDetailService;
 	@Autowired
 	private UpdateLocalCodeBySvnRepoService updateLocalCodeBySvnRepoService;
 
 	@Override
-	public boolean runTestSuiteForAndroid(ExecuteDetail executeDetail) {
+	public boolean runTestSuite(ExecuteParam executeParam) {
 		boolean flag = false;
+
+		//1.测试脚本本地路径准备
+		String token = executeParam.getToken();
+		Device device = executeParam.getDevice();
+		List<Script> scripts = executeParam.getScripts();
+		ProductSvn productSvn = executeParam.getProductSvn();
 		
-		ProductSvn productSvn = executeDetail.getProductSvn();
-		String workspace = createLocalScriptPath(productSvn.getProductName());
-		long svnVersion = checkOutScript(productSvn, workspace);
-		logger.debug("脚本更新成功svn仓库 {}中脚本版本为{}", productSvn.getRepository(), svnVersion);
-		//组装测试命令
-		String testLog = createLog(executeDetail.getUdid(), productSvn.getProductName());
-		String rfLog = testLog + "/log.html";
-		String appiumLog = testLog + "/appium.txt";
-		String testReport = testLog + "/report.html";
+		String workSpaceRoot = appiumConfig.getWorkspace();
+		String scriptPath = workSpaceRoot + "/" + productSvn.getProductName() + "/" + productSvn.getSvnBatchName() + "/";
 		
+		List<String> suiteNames = new ArrayList<String>();
+		
+		for (Script script : scripts) {
+			if (script.getScriptName() != "") {
+				suiteNames.add(script.getScriptName());
+			}
+		}
+		
+		//2.创建rf、appium log文件
+		String log = createLog(productSvn.getProductName(), device.getUdid());
+		String rfLog = log + "/log.html";
+		String appiumLog = log + "/appium.txt";
+		String testReport = log + "/report.html";
+		
+		ExecuteDetail executeDetail = new ExecuteDetail();
+		executeDetail.setToken(token);
 		executeDetail.setDeviceType("Android");
 		executeDetail.setTestReportPath(testReport);
 		executeDetail.setRfLogPath(rfLog);
@@ -69,246 +91,57 @@ public class TestCaseServiceImpl implements TestCaseService {
 		executeDetail.setStatus("1");
 		executeDetailService.save(executeDetail);
 		
-		//启动appium服务
-		Appium appium = appiumService.startAppium(testLog);
-		//rf启动初始化
+		//3.启动appium服务
+		Appium appium = appiumService.init(log);
+		appiumService.startAppium(appium);
+		
+		String host = appium.getHost();
+		int port = appium.getPort();
+		int systemPort = appium.getSystemPort();
+		int wdaLocalPort = appium.getWdaLocalPort();
+		
+		//4.rf启动初始化
+		String platformName = device.getPlatformName();
+		String udid = device.getUdid();
+		String version = device.getVerison();
+		
 		Robot robot = new Robot();
-		robot.setLog(testLog);
-		robot.setUrl(appium.getHost(), appium.getPort());
-		robot.setUdid(executeDetail.getUdid());
-		robot.setVerison(executeDetail.getVersion());
-		robot.setSystemPort(appium.getSystemPort());
+		robot.setLog(log);
+		robot.setUrl(host, port);
+		robot.setUdid(udid);
+		robot.setVerison(version);
 		
-		//svn路径映射到本地
-		String testSuiteSvnPath = executeDetail.getTestSuitePath();
-		String testSuiteLocalPath = testSuiteSvnPath.replace(productSvn.getRepository(), workspace);
+		if ("android".equals(platformName.toLowerCase())) {
+			robot.setSystemPort(systemPort);
+		}
+		if ("ios".equals(platformName.toLowerCase())) {
+			robot.setWdaLocalPort(wdaLocalPort);
+		}
+		robot.setPlatformName(platformName);
+		robot.setSuiteNames(suiteNames);
+		robot.setScriptPath(scriptPath);
 		
-		logger.info("svn测试套路径 {},本地脚本路径 {}", testSuiteSvnPath, testSuiteLocalPath);
+		//5.启动robot framework执行脚本
+		RobotUtils robotUtils = new RobotUtils(appiumConfig.getStartRF());
+		List<String> rfShell = robotUtils.buildRobotParam(robot);
 		
-		robot.setTestSuite(testSuiteLocalPath);
-		List<String> cmds = RobotUtils.buildParamForAndroid(robot);
-		//启动rf
-		final ProcessBuilder pb = new ProcessBuilder(cmds) .redirectErrorStream(true);
-		logger.debug("开始执行测试用例 {}", cmds);
+		logger.debug("开始执行测试用例 {}", rfShell);
+		
 		try {
-			boolean result = false;
-			Process process = pb.start();
-			StreamWatch inputStream = new StreamWatch(process.getInputStream());
-			inputStream.setName("RFInfo");
-			inputStream.start();
-			int status = process.waitFor();
-			if (status == 0) {
-				result = true;
-			} else {
-				result = false;
-			}
-
-			logger.info("测试用例执行完成，测试结果为 {}", result);
-			process.destroy();
-		} catch (Exception e) {
-			logger.warn("运行测试用例失败  {}", e);
-		} finally {
+			flag = executeScript(rfShell);
+		} catch (IOException | InterruptedException e) {
+			logger.warn("运行测试用例异常  {}", e);
+		}finally {
+			//6.测试结束更新状态，设备初始化
 			executeDetail.setStatus("0");
 			executeDetailService.update(executeDetail);
-			//回调bmtc平台通知结果
-			//callback
-			appiumService.stopAppium(appium.getPort());
+			initDeviceEnv(port, udid, platformName);
+			//7.回调bmtc平台通知测试结果
 		}
 		
-		if (null != pb) {
-			flag = true;
-		}
 		return flag;
 	}
 	
-	@Override
-	public boolean atpRunCaseForAndroid(ExecuteDetail executeDetail) {
-		boolean flag = false;
-		ProductSvn productSvn = executeDetail.getProductSvn();
-		String workspace = createLocalScriptPath(productSvn.getProductName());
-		long svnVersion = checkOutScript(productSvn, workspace);
-		
-		logger.debug("脚本更新成功svn仓库 {}中脚本版本为{}", productSvn.getRepository(), svnVersion);
-		String udid = executeDetail.getUdid();
-		String testLog = createLog(udid, productSvn.getPassword());
-		final Appium appium = appiumService.startAppium(testLog);
-
-		Robot robot = new Robot();
-		robot.setLog(testLog);
-		robot.setUrl(appium.getHost(), appium.getPort());
-		robot.setUdid(udid);
-		robot.setVerison(executeDetail.getVersion());
-		robot.setSystemPort(appium.getSystemPort());
-		robot.setCaseName(executeDetail.getCaseName());
-		robot.setTestSuite(executeDetail.getTestSuitePath());
-
-		List<String> cmds = RobotUtils.buildParamForAndroid(robot);
-		final ProcessBuilder pb = new ProcessBuilder(cmds).redirectErrorStream(true);
-		logger.debug("开始执行测试用例 {}", cmds);
-		// 执行测试用例
-		try {
-			boolean result = false;
-			Process process = pb.start();
-			StreamWatch inputStream = new StreamWatch(process.getInputStream());
-			inputStream.setName("RFInfo");
-			inputStream.start();
-			int status = process.waitFor();
-			if (status == 0) {
-				result = true;
-			} else {
-				result = false;
-			}
-
-			logger.info("测试用例执行完成，测试结果为 {}", result);
-			process.destroy();
-		} catch (Exception e) {
-			logger.warn("运行测试用例失败  {}", e);
-		} finally {
-			//测试完成关闭appium
-			appiumService.stopAppium(appium.getPort());
-			logger.info("测试完成关闭appium服务");
-		}
-		
-		if (null != pb) {
-			flag = true;
-		}
-		return flag;
-	}
-	
-	@Override
-	public boolean runTestSuiteForIOS(ExecuteDetail executeDetail) {
-		boolean flag = false;
-		ProductSvn productSvn = executeDetail.getProductSvn();
-		String workspace = createLocalScriptPath(productSvn.getProductName());
-		long svnVersion = checkOutScript(productSvn, workspace);
-		logger.debug("脚本更新成功svn仓库 {}中脚本版本为{}", productSvn.getRepository(), svnVersion);
-		//组装测试命令
-		final String token = executeDetail.getToken();
-		String testLog = createLog(executeDetail.getUdid(), productSvn.getProductName());
-		String rfLog = testLog + "/log.html";
-		String appiumLog = testLog + "/appium.txt";
-		String testReport = testLog + "/report.html";
-		
-		executeDetail.setDeviceType("IOS");
-		executeDetail.setTestReportPath(testReport);
-		executeDetail.setRfLogPath(rfLog);
-		executeDetail.setAppiumLogPath(appiumLog);
-		executeDetail.setStatus("1");
-		executeDetailService.save(executeDetail);
-		
-		//启动appium服务
-		final Appium appium = appiumService.startAppium(testLog);
-		//rf启动初始化
-		Robot robot = new Robot();
-		robot.setLog(testLog);
-		robot.setUrl(appium.getHost(), appium.getPort());
-		robot.setUdid(executeDetail.getUdid());
-		robot.setVerison(executeDetail.getVersion());
-		robot.setWdaLocalPort(appium.getWadLocalPort());
-		
-		//svn路径映射到本地
-		String testSuiteSvnPath = executeDetail.getTestSuitePath();
-		String testSuiteLocalPath = testSuiteSvnPath.replace(productSvn.getRepository(), workspace);
-		
-		logger.info("svn测试套路径 {},本地脚本路径 {}", testSuiteSvnPath, testSuiteLocalPath);
-		
-		robot.setTestSuite(testSuiteLocalPath);
-		List<String> cmds = RobotUtils.buildParamForIOS(robot);
-		//启动rf
-		final ProcessBuilder pb = new ProcessBuilder(cmds) .redirectErrorStream(true);
-		logger.debug("开始执行测试用例 {}", cmds);
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				// 执行测试用例
-				try {
-					boolean result = false;
-					Process process = pb.start();
-					StreamWatch inputStream = new StreamWatch(process.getInputStream());
-					inputStream.setName("RFInfo");
-					inputStream.start();
-					int status = process.waitFor();
-					if (status == 0) {
-						result = true;
-					} else {
-						result = false;
-					}
-
-					logger.info("测试用例执行完成，测试结果为 {}", result);
-					process.destroy();
-				} catch (Exception e) {
-					logger.warn("运行测试用例失败  {}", e);
-				} finally {
-					ExecuteDetail executeDetail = new ExecuteDetail();
-					executeDetail.setStatus("0");
-					executeDetail.setToken(token);
-					executeDetailService.update(executeDetail);
-					//回调bmtc平台通知结果
-					//callback
-					appiumService.stopAppium(appium.getPort());
-				}
-			}
-		}).start();
-		
-		if (null != pb) {
-			flag = true;
-		}
-		return flag;
-	}
-
-	@Override
-	public boolean atpRunCaseForIOS(ExecuteDetail executeDetail) {
-		boolean flag = false;
-		ProductSvn productSvn = executeDetail.getProductSvn();
-		String workspace = createLocalScriptPath(productSvn.getProductName());
-		long svnVersion = checkOutScript(productSvn, workspace);
-		
-		logger.debug("脚本更新成功svn仓库 {}中脚本版本为{}", productSvn.getRepository(), svnVersion);
-		String udid = executeDetail.getUdid();
-		String testLog = createLog(udid, productSvn.getPassword());
-		final Appium appium = appiumService.startAppium(testLog);
-
-		Robot robot = new Robot();
-		robot.setLog(testLog);
-		robot.setUrl(appium.getHost(), appium.getPort());
-		robot.setUdid(udid);
-		robot.setVerison(executeDetail.getVersion());
-		robot.setWdaLocalPort(appium.getWadLocalPort());
-		robot.setCaseName(executeDetail.getCaseName());
-		robot.setTestSuite(executeDetail.getTestSuitePath());
-
-		List<String> cmds = RobotUtils.buildParamForIOS(robot);
-		final ProcessBuilder pb = new ProcessBuilder(cmds).redirectErrorStream(true);
-		logger.debug("开始执行测试用例 {}", cmds);
-		// 执行测试用例
-		try {
-			boolean result = false;
-			Process process = pb.start();
-			StreamWatch inputStream = new StreamWatch(process.getInputStream());
-			inputStream.setName("RFInfo");
-			inputStream.start();
-			int status = process.waitFor();
-			if (status == 0) {
-				result = true;
-			} else {
-				result = false;
-			}
-			logger.info("测试用例执行完成，测试结果为 {}", result);
-			process.destroy();
-		} catch (Exception e) {
-			logger.warn("运行测试用例失败  {}", e);
-		} finally {
-			//测试完成关闭appium
-			appiumService.stopAppium(appium.getPort());
-			logger.info("测试完成关闭appium服务");
-		}
-		
-		if (null != pb) {
-			flag = true;
-		}
-		return flag;
-	}
-
 	@Override
 	public List<TestCase> getTestCase(List<String> pathList) {
 		List<TestCase> testSuiteList = new ArrayList<TestCase>();
@@ -464,11 +297,11 @@ public class TestCaseServiceImpl implements TestCaseService {
 	 * @param product
 	 * @return 
 	 */
-	private String createLog(String udid, String product) {
+	private String createLog(String product, String udid) {
 		Date d = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 		String currentTimeStamp = sdf.format(d);
-		String rootPath = PropertiesUtils.getAutoLog();
+		String rootPath = appiumConfig.getAutotestLog();
 		String log = rootPath + "/" + product + "/" + currentTimeStamp + "-" + udid;
 		File file = new File(log);
 
@@ -478,38 +311,30 @@ public class TestCaseServiceImpl implements TestCaseService {
 
 		return log;
 	}
-
-	/**
-	 * 从svn下载脚本
-	 * @param productSvn
-	 * @return
-	 */
-	private long checkOutScript(ProductSvn productSvn, String scriptLocalPath){
-		long scriptVersion = 0;
-		String url = productSvn.getRepository();
-		String userName =  productSvn.getUsername();
-		String password =  productSvn.getPassword();
-		File workSpace = new File(scriptLocalPath);
-		
-		try {
-			scriptVersion = updateLocalCodeBySvnRepoService.updateLocalCodeBySvnRepo(url, userName, password, workSpace, null);
-			logger.info("测试脚本版本 {}", scriptVersion);
-		} catch (SVNException e1) {
-			logger.error("svn下载脚本异常，请检查svn参数是否正确{} {}", productSvn, e1);
-			e1.printStackTrace();
+	
+	private boolean executeScript(List<String> shell) throws IOException, InterruptedException{
+		boolean result = false;
+		ProcessBuilder pb = new ProcessBuilder(shell) .redirectErrorStream(true);
+		Process process = pb.start();
+		StreamWatch inputStream = new StreamWatch(process.getInputStream());
+		inputStream.setName("RFlog");
+		inputStream.start();
+		int status = process.waitFor();
+		if (status == 0) {
+			result = true;
+		} else {
+			result = false;
 		}
-		return scriptVersion;
-	}
-	/**
-	 * 创建脚本本地路径
-	 * @param productSvn
-	 * @return
-	 */
-	private String createLocalScriptPath(String productName){
-		String workSpaceRoot = PropertiesUtils.getSvnRootPath();
-		String realScriptLocalpath = workSpaceRoot + "/" + productName;
-		
-		return realScriptLocalpath;
+
+		logger.info("测试用例执行完成，测试结果为 {}", result);
+		process.destroy();
+		return result;
 	}
 	
+	private void initDeviceEnv(int appiumPort, String deviceUid, String devicePlatform){
+		appiumService.stopAppium(appiumPort);
+		if ("android".equals(devicePlatform.toLowerCase())) {
+			devicesService.androidInit(deviceUid);
+		}
+	}
 }

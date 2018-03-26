@@ -30,11 +30,11 @@ import com.bmtc.svn.common.utils.EncryptUtil;
 import com.bmtc.svn.common.utils.SvnRepoTree;
 import com.bmtc.svn.dao.SvnRepoDao;
 import com.bmtc.svn.domain.SvnRepo;
-import com.bmtc.svn.domain.SvnUserAuthzInfo;
+import com.bmtc.svn.domain.SvnUser;
 import com.bmtc.svn.service.RepositoryService;
 import com.bmtc.svn.service.SvnRepoService;
 import com.bmtc.svn.service.SvnService;
-import com.bmtc.svn.service.SvnUserRightService;
+import com.bmtc.svn.service.SvnUserService;
 import com.bmtc.system.domain.ConfigInfoDO;
 import com.bmtc.system.service.ConfigService;
 
@@ -57,11 +57,8 @@ public class SvnRepoServiceImpl implements SvnRepoService {
 	@Resource(name = "SvnService")
 	private SvnService svnService;
 	
-	/**
-	 * SVN权限层
-	 */
-	@Resource(name = "SvnUserRightService")
-	private SvnUserRightService svnUserRightService;
+	@Autowired
+	private SvnUserService svnUserService;
 	
 	/**
 	 * SVN仓库服务层
@@ -196,6 +193,7 @@ public class SvnRepoServiceImpl implements SvnRepoService {
 			if(iSExistSvnRepoPath == false || contents.size() == 2) {		
 				// 调用svn命令，创建远程svn仓库
 				sess.execCommand("svnadmin create " + svnRepo.getSvnRepoPath());
+				logger.info("svnadmin create " + svnRepo.getSvnRepoPath());
 /*				// 修改目录权限
 				sess.execCommand("chmod 777 " + svnRepo.getSvnRepoPath());*/
 				// 显示执行命令后的信息
@@ -235,15 +233,36 @@ public class SvnRepoServiceImpl implements SvnRepoService {
 		// 将SVN仓库信息入库
 		res = svnRepoDao.addSvnRepo(svnRepo);
 		logger.info("添加" + res + "条SVN仓库信息完成");
-		
-		// 增加默认的权限
-		SvnUserAuthzInfo svnUserAuthzInfo = new SvnUserAuthzInfo();
-		svnUserAuthzInfo.setSvnRepoName(svnRepo.getSvnRepoName());
-		svnUserAuthzInfo.setSvnRepoPath(this.svnUserRightService.formatRes(svnRepo, "/"));
-		svnUserAuthzInfo.setSvnUserAuthz("rw");
 	
+		// 设置默认的SVN用户"*"，在SVN用户表中添加"*"用户，用于在SVN用户权限表中可以添加"* = "、"* = r"或"* = rw".
+		if(res > 0) {
+			//根据SVN库名执行querySvnRepoIdBySvnRepoName得到svnRepoId
+			String svnRepoIdStr = svnRepoDao.querySvnRepoIdBySvnRepoName(svnRepo.getSvnRepoName());
+			long svnRepoId = 0;
+			if("".equals(svnRepoIdStr) || svnRepoIdStr == null) {
+				logger.error("svn_repo数据表中不存在svn仓库名为'" + svnRepo.getSvnRepoName() + "'的记录");				
+			} else {
+				svnRepoId = Long.parseLong(svnRepoIdStr);		
+			}
+			
+			SvnUser svnUser = new SvnUser();
+			svnUser.setSvnUserName("*");
+			svnUser.setSvnPassword("*");
+			svnUser.setStatus(0);
+			svnUser.setSvnRepoId(svnRepoId);
+			svnUser.setSvnRepoName(svnRepo.getSvnRepoName());
+			
+			//添加SVN用户
+			try {
+				svnUserService.addSvnUser(svnUser);
+			} catch (Exception e) {
+				e.printStackTrace();
+				logger.error(e.getMessage());
+			}
+		}
+		
 		// 将数据库中的svn用户和权限信息写入passwd和authz文件中，并上传到远程svn服务器对应仓库的conf目录下
-		svnService.exportConfigToSvnServer(svnRepo.getSvnRepoName(), bmtcConfig.getSvnConfFilesLocation());	
+		// svnService.exportConfigToSvnServer(svnRepo.getSvnRepoName(), bmtcConfig.getSvnConfFilesLocation());	
 
 		logger.info("SvnRepoServiceImpl.addSvnRepo() end");
 		if(res > 0 && createNewRepoSucceed == true) {
@@ -527,7 +546,7 @@ public class SvnRepoServiceImpl implements SvnRepoService {
 		}
 		// 默认顶级菜单为0，根据数据库实际情况调整
 		SvnRepoTree<SvnRepo> t = BuildTree.buildSvnRepoTree(trees);
-		t.setText("SVN仓库");
+		t.setText("SVN产品仓库");
 		logger.info("SvnRepoServiceImpl.getTree() end");
 		return t;
 	}

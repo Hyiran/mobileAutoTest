@@ -13,19 +13,27 @@
 							<div class="columns pull-left">
 								<button shiro:hasPermission="svn:svnCreateBranch:add" type="button"
 									class="btn  btn-primary" onclick="add()">
-									<i class="fa fa-plus hidden" aria-hidden="true"></i>新建SVN分支
+									<i class="fa fa-plus hidden" aria-hidden="true"></i>新建SVN批次分支
 								</button>
-								<button shiro:hasPermission="svn:svnCreateBranch:batchRemove" type="button" 
+<!-- 								<button shiro:hasPermission="svn:svnCreateBranch:batchRemove" type="button" 
 									class="btn  btn-danger" onclick="batchRemove()">
 									<i class="fa fa-trash" aria-hidden="true"></i>删除
-								</button>
+								</button> -->
 							</div>
 							<div class="columns pull-right">
 								<button class="btn btn-success" onclick="reLoad()">查询</button>
 							</div>
 							<div class="columns pull-right col-md-2 nopadding">
 								<input id="searchSvnRepoName" type="text" class="form-control"
-									placeholder="SVN仓库名称">
+									placeholder="SVN产品仓库名">
+							</div>
+							<div class="columns pull-right col-md-2 nopadding">
+								<input id="searchDeptName" type="text" class="form-control"
+									placeholder="所属产品">
+							</div>
+							<div class="columns pull-right col-md-2 nopadding">
+								<input id="searchBatchName" type="text" class="form-control"
+									placeholder="所属批次">
 							</div>
 						</div>
 						<table id="svnCreateBranchTable" data-mobile-responsive="true">

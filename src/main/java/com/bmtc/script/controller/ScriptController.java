@@ -86,13 +86,10 @@ public class ScriptController extends BaseController{
 	R updateScripts(DeptDO DeptDO) {
 		logger.info("ScriptController.updateScripts() start");
 		// 更新本地及数据库脚本信息
-		if(!scriptService.updateScriptData(DeptDO)){
-			logger.error("脚本信息同步数据库异常");
-			return R.error("更新失败!");
-		}
+		R r = scriptService.updateScriptData(DeptDO);
 		logger.info("ScriptController.updateScripts() end");
 		// 更新成功
-		return R.ok("更新成功!");
+		return r;
 	}
 	/**
 	 * 前端测试任务列表   关联脚本   列表展示

@@ -432,7 +432,7 @@ public class SvnUserController extends BaseController {
 	}
 	
 	/**
-	 * @param svnUserName(可为空), svnRepoName(可为空)
+	 * @param svnUserName(可为空), name(姓名，可为空), svnRepoName(可为空)
 	 * @return pageUtil
 	 * @throws SVNException
 	 */

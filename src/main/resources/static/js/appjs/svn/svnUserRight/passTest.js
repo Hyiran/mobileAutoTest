@@ -22,7 +22,7 @@ function passTest() {
 		success : function(data) {
 			if (data.code == 0) {
 				parent.layer.msg(data.msg);
-				parent.reLoad();
+				//parent.reLoad();
 				var index = parent.layer.getFrameIndex(window.name); // 获取窗口索引
 				parent.layer.close(index);
 			} else {
@@ -66,10 +66,10 @@ function validateRule() {
 		},
 		messages : {
 			/*svnRepoName : {
-				required : icon + "请输入需要测试联通性的SVN仓库名"
+				required : icon + "请输入需要测试联通性的SVN产品仓库名"
 			},
 			svnRepoUrl : {
-				required : icon + "请输入需要测试联通性的SVN仓库URL"
+				required : icon + "请输入需要测试联通性的SVN产品仓库URL"
 			},
 			svnUserName : {
 				required : icon + "请输入SVN用户名"

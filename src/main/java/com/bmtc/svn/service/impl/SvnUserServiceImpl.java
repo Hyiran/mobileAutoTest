@@ -289,7 +289,7 @@ public class SvnUserServiceImpl implements SvnUserService
 			logger.error("svn_repo数据表中不存在svn仓库名为'" + svnRepoName + "'的记录");
 			return null;
 		} else {
-			svnRepoId = Long.parseLong(svnRepoIdStr);		
+			svnRepoId = Long.parseLong(svnRepoIdStr);
 		}
 		
 		SvnUserRepoInfo svnUser = svnUserDao.querySvnUser(svnUserName, svnRepoId);
